@@ -1,18 +1,24 @@
-## Getting Started
+## Lancement local avec Docker Compose
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Pour exécuter ce projet localement à l'aide de Docker Compose, suivez les étapes ci-dessous :
 
-## Folder Structure
+### Prérequis
 
-The workspace contains two folders by default, where:
+- [Docker](https://docs.docker.com/get-docker/) installé
+- [Docker Compose](https://docs.docker.com/compose/install/) installé
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+### Étapes
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+#### Lancez les services avec Docker Compose :
+```bash
+    docker compose up --build
+    docker compose up --build -d # lancement en arrière-plan
+```
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+### Arrêter les services
 
-## Dependency Management
+Pour arrêter les services, utilisez :
+```bash
+docker-compose down
+```
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
