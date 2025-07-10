@@ -21,10 +21,11 @@ jobs:
         run: |
           mkdir -p bin
           javac -d bin src/*.java
-
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}:latest .
+          IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
+          IMAGE_NAME_LC=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
+          docker build -t $IMAGE_NAME_LC .
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -33,12 +34,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}:latest
+          IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
+          IMAGE_NAME_LC=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
+          docker push $IMAGE_NAME_LC
   test-with-docker:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Pull image and run container
         run: |
-          docker pull ghcr.io/${{ github.repository }}:latest
-          docker run --rm ghcr.io/${{ github.repository }}:latest
+          IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
+          IMAGE_NAME_LC=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
+          docker pull $IMAGE_NAME_LC
+          docker run --rm $IMAGE_NAME_LC
