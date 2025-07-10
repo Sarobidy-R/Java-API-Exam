@@ -21,9 +21,24 @@ jobs:
         run: |
           mkdir -p bin
           javac -d bin src/*.java
-      - name: Run Java application (exemple)
+
+      - name: Build Docker image
         run: |
-          java -cp bin App &
-          sleep 5
-          curl http://localhost:8080
-        continue-on-error: true
+          docker build -t ghcr.io/${{ github.repository }}:latest .
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}:latest
+  test-with-docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull image and run container
+        run: |
+          docker pull ghcr.io/${{ github.repository }}:latest
+          docker run --rm ghcr.io/${{ github.repository }}:latest
