@@ -1,0 +1,27 @@
+name: Java CI
+
+on:
+  push:
+    branches: ["main", "dev", "github-ci"]
+  pull_request:
+    branches: ["main", "dev", "github-ci"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+      - name: Compile Java project
+        run: |
+          mkdir -p bin
+          javac -d bin src/*.java
+      - name: Run Java application (exemple)
+        run: |
+          java -cp bin App
+        continue-on-error: true
