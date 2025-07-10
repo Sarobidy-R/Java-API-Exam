@@ -46,4 +46,5 @@ jobs:
           IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
           IMAGE_NAME_LC=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
           docker pull $IMAGE_NAME_LC
-          docker run --rm $IMAGE_NAME_LC
+          docker run -d --rm $IMAGE_NAME_LC
+          curl http://localhost:8080
