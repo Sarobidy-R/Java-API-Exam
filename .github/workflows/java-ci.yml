@@ -23,5 +23,7 @@ jobs:
           javac -d bin src/*.java
       - name: Run Java application (exemple)
         run: |
-          java -cp bin App
+          java -cp bin App &
+          sleep 5
+          curl -s http://localhost:8080
         continue-on-error: true
