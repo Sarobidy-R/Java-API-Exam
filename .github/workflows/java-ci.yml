@@ -46,5 +46,13 @@ jobs:
           IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
           IMAGE_NAME_LC=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
           docker pull $IMAGE_NAME_LC
-          docker run -d --rm $IMAGE_NAME_LC
-          curl http://localhost:8080
+          CONTAINER_ID=$(docker run -d --rm -p 8080:8080 $IMAGE_NAME_LC)
+          echo "Container started: $CONTAINER_ID"
+      - name: Test API endpoint
+        run: |
+          sleep 5 # attendre que le serveur démarre
+          curl --fail http://localhost:8080 || (docker logs $(docker ps -q) && exit 1)
+      - name: Stop container
+        if: always()
+        run: |
+          docker stop $(docker ps -q)
