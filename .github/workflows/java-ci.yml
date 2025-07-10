@@ -2,9 +2,9 @@ name: Java CI
 
 on:
   push:
-    branches: ["main", "dev", "github-ci"]
+    branches: ["main", "dev", "docker&github"]
   pull_request:
-    branches: ["main", "dev", "github-ci"]
+    branches: ["main", "dev", "docker&github"]
 
 jobs:
   build:
