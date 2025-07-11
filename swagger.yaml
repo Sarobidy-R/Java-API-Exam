@@ -1,296 +1,598 @@
 openapi: 3.0.3
 info:
-  title: Java API REST
-  description: Documentation de l'API REST Java
+  title: 🎫 API de Gestion de Tickets
+  description: |
+    
+    Cette API REST permet de gérer un système de tickets avec file d'attente. 
+    Elle offre une gestion complète du cycle de vie des tickets 
+  
+    
   version: 1.0.0
   contact:
     name: API Support
-    email: support@example.com
+    email: rasendraminosarobidy@gmail.com
+    url: https://github.com/Sarobidy-R/Java-API-Exam
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 servers:
   - url: http://localhost:8080
-    description: Serveur de développement
+    description: 🛠️ Serveur de développement (local)
   - url: https://java-api-exam-latest.onrender.com/
-    description: Serveur de production
+    description: 🌐 Serveur de production
+tags:
+  - name: 🏠 Général
+    description: Endpoints généraux et utilitaires
+  - name: 🎫 Tickets
+    description: Gestion des tickets et de leur cycle de vie
+  - name: 📋 File d'attente
+    description: Opérations sur la file d'attente (FIFO)
 paths:
   /:
     get:
-      summary: Endpoint de base
-      description: Retourne un message de bienvenue
+      tags:
+        - 🏠 Général
+      summary: 🎉 Endpoint d'accueil
+      description: |
+        Retourne un message de bienvenue pour vérifier que l'API est accessible.
+        
+        **Utilisation :** Point d'entrée pour tester la connectivité de l'API.
+      operationId: getWelcome
       responses:
         '200':
-          description: Message de bienvenue
+          description: ✅ Message de bienvenue
           content:
             text/plain:
               schema:
                 type: string
                 example: "Holla depuis le serveur Java API ! 🚀"
+              examples:
+                welcome:
+                  value: "Holla depuis le serveur Java API ! 🚀"
+                  summary: Message d'accueil standard
+
   /api/tickets:
     post:
-      summary: Créer un ticket
-      description: Crée un nouveau ticket et retourne ses informations (statut WAITING)
+      tags:
+        - 🎫 Tickets
+      summary: ➕ Créer un nouveau ticket
+      description: |
+        Crée un nouveau ticket avec un numéro unique auto-généré et l'ajoute automatiquement 
+        à la file d'attente avec le statut **WAITING**.
+        
+        **Processus :**
+        1. Génération automatique du numéro de ticket
+        2. Assignation du statut WAITING
+        3. Ajout à la file d'attente
+        4. Retour des informations du ticket créé
+      operationId: createTicket
       responses:
         '201':
-          description: Ticket créé
+          description: ✅ Ticket créé avec succès
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ticket'
+              examples:
+                new_ticket:
+                  value:
+                    ticketNumber: 1
+                    status: "WAITING"
+                    creationDate: "2025-07-11T10:30:00Z"
+                    calledDate: null
+                    servedDate: null
+                  summary: Nouveau ticket créé
         '500':
-          description: Erreur interne
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Erreur interne"
+          $ref: '#/components/responses/InternalServerError'
+    
     get:
-      summary: Liste des tickets en attente
-      description: Retourne la liste des tickets en attente (WAITING)
+      tags:
+        - 🎫 Tickets
+      summary: 📋 Lister les tickets en attente
+      description: |
+        Retourne la liste complète des tickets ayant le statut **WAITING**, 
+        c'est-à-dire ceux qui sont en attente d'être appelés.
+        
+        **Note :** Les tickets sont retournés dans l'ordre de création (FIFO).
+      operationId: getWaitingTickets
       responses:
         '200':
-          description: Liste des tickets en attente
+          description: ✅ Liste des tickets en attente
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ticket'
+              examples:
+                waiting_tickets:
+                  value:
+                    - ticketNumber: 1
+                      status: "WAITING"
+                      creationDate: "2025-07-11T10:30:00Z"
+                      calledDate: null
+                      servedDate: null
+                    - ticketNumber: 2
+                      status: "WAITING"
+                      creationDate: "2025-07-11T10:31:00Z"
+                      calledDate: null
+                      servedDate: null
+                  summary: Tickets en attente
+                empty_list:
+                  value: []
+                  summary: Aucun ticket en attente
         '500':
-          description: Erreur interne
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Erreur interne"
+          $ref: '#/components/responses/InternalServerError'
   /api/tickets/call:
     post:
-      summary: Appeler un ticket
-      description: Passe le ticket du statut WAITING à CALLED
+      tags:
+        - 🎫 Tickets
+      summary: 📞 Appeler un ticket
+      description: |
+        Fait passer un ticket du statut **WAITING** au statut **CALLED**.
+        
+        **Processus :**
+        1. Recherche du ticket par numéro dans la file d'attente
+        2. Changement du statut vers CALLED
+        3. Déplacement vers la liste des tickets appelés
+        4. Enregistrement de la date d'appel
+        
+        **Prérequis :** Le ticket doit avoir le statut WAITING.
+      operationId: callTicket
       requestBody:
         required: true
+        description: Numéro du ticket à appeler
         content:
           text/plain:
             schema:
               type: integer
+              minimum: 1
               example: 1
+            examples:
+              ticket_1:
+                value: 1
+                summary: Appeler le ticket numéro 1
+              ticket_5:
+                value: 5
+                summary: Appeler le ticket numéro 5
       responses:
         '200':
-          description: Ticket appelé
+          description: ✅ Ticket appelé avec succès
           content:
             text/plain:
               schema:
                 type: string
                 example: "Ticket appelé"
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '404':
-          description: Ticket non trouvé ou déjà appelé
+          description: ❌ Ticket non trouvé ou déjà appelé
           content:
             text/plain:
               schema:
                 type: string
                 example: "Ticket non trouvé ou déjà appelé"
-        '400':
-          description: Numéro de ticket invalide
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Numéro de ticket invalide"
         '500':
-          description: Erreur interne
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Erreur interne"
+          $ref: '#/components/responses/InternalServerError'
+
   /api/tickets/serve:
     post:
-      summary: Servir un ticket
-      description: Passe le ticket du statut CALLED à SERVED
+      tags:
+        - 🎫 Tickets
+      summary: ✅ Servir un ticket
+      description: |
+        Fait passer un ticket du statut **CALLED** au statut **SERVED**.
+        
+        **Processus :**
+        1. Recherche du ticket par numéro dans la liste des tickets appelés
+        2. Changement du statut vers SERVED
+        3. Déplacement vers la liste des tickets servis
+        4. Enregistrement de la date de service
+        
+        **Prérequis :** Le ticket doit avoir le statut CALLED.
+      operationId: serveTicket
       requestBody:
         required: true
+        description: Numéro du ticket à servir
         content:
           text/plain:
             schema:
               type: integer
+              minimum: 1
               example: 1
+            examples:
+              ticket_1:
+                value: 1
+                summary: Servir le ticket numéro 1
+              ticket_3:
+                value: 3
+                summary: Servir le ticket numéro 3
       responses:
         '200':
-          description: Ticket servi
+          description: ✅ Ticket servi avec succès
           content:
             text/plain:
               schema:
                 type: string
                 example: "Ticket servi"
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '404':
-          description: Ticket non trouvé ou non appelé
+          description: ❌ Ticket non trouvé ou non appelé
           content:
             text/plain:
               schema:
                 type: string
                 example: "Ticket non trouvé ou non appelé"
-        '400':
-          description: Numéro de ticket invalide
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Numéro de ticket invalide"
         '500':
-          description: Erreur interne
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Erreur interne"
+          $ref: '#/components/responses/InternalServerError'
   /api/tickets/called:
     get:
-      summary: Liste des tickets appelés
-      description: Retourne la liste des tickets avec le statut CALLED
+      tags:
+        - 🎫 Tickets
+      summary: 📞 Lister les tickets appelés
+      description: |
+        Retourne la liste des tickets ayant le statut **CALLED**, 
+        c'est-à-dire ceux qui ont été appelés mais pas encore servis.
+        
+        **Utilisation :** Affichage des tickets en cours de traitement.
+      operationId: getCalledTickets
       responses:
         '200':
-          description: Liste des tickets appelés
+          description: ✅ Liste des tickets appelés
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ticket'
+              examples:
+                called_tickets:
+                  value:
+                    - ticketNumber: 1
+                      status: "CALLED"
+                      creationDate: "2025-07-11T10:30:00Z"
+                      calledDate: "2025-07-11T10:35:00Z"
+                      servedDate: null
+                  summary: Tickets appelés
+                empty_list:
+                  value: []
+                  summary: Aucun ticket appelé
         '500':
-          description: Erreur interne
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Erreur interne"
+          $ref: '#/components/responses/InternalServerError'
+
   /api/tickets/served:
     get:
-      summary: Liste des tickets servis
-      description: Retourne la liste des tickets avec le statut SERVED
+      tags:
+        - 🎫 Tickets
+      summary: ✅ Lister les tickets servis
+      description: |
+        Retourne la liste des tickets ayant le statut **SERVED**, 
+        c'est-à-dire ceux qui ont été complètement traités.
+        
+        **Utilisation :** Historique des tickets traités et statistiques.
+      operationId: getServedTickets
       responses:
         '200':
-          description: Liste des tickets servis
+          description: ✅ Liste des tickets servis
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ticket'
+              examples:
+                served_tickets:
+                  value:
+                    - ticketNumber: 1
+                      status: "SERVED"
+                      creationDate: "2025-07-11T10:30:00Z"
+                      calledDate: "2025-07-11T10:35:00Z"
+                      servedDate: "2025-07-11T10:40:00Z"
+                  summary: Tickets servis
+                empty_list:
+                  value: []
+                  summary: Aucun ticket servi
         '500':
-          description: Erreur interne
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Erreur interne"
+          $ref: '#/components/responses/InternalServerError'
   /api/queue/enqueue:
     post:
-      summary: Ajouter un ticket à la file
-      description: Crée un ticket et l'ajoute à la file d'attente
+      tags:
+        - 📋 File d'attente
+      summary: ➕ Ajouter un ticket à la file
+      description: |
+        Crée un nouveau ticket et l'ajoute automatiquement à la file d'attente.
+        
+        **Note :** Cet endpoint fait la même chose que `POST /api/tickets` 
+        mais est exposé dans le contexte de la file d'attente.
+        
+        **Principe FIFO :** Le ticket sera traité dans l'ordre d'arrivée.
+      operationId: enqueueTicket
       responses:
         '201':
-          description: Ticket ajouté à la file
+          description: ✅ Ticket ajouté à la file avec succès
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ticket'
+              examples:
+                enqueued_ticket:
+                  value:
+                    ticketNumber: 3
+                    status: "WAITING"
+                    creationDate: "2025-07-11T10:32:00Z"
+                    calledDate: null
+                    servedDate: null
+                  summary: Ticket ajouté à la file
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/queue/dequeue:
     post:
-      summary: Retirer le ticket en tête de la file
-      description: Retire et retourne le ticket en tête de la file
+      tags:
+        - 📋 File d'attente
+      summary: ⬆️ Retirer le ticket en tête de file
+      description: |
+        Retire et retourne le ticket en **tête de file** (le plus ancien).
+        
+        **Principe FIFO :** Le premier ticket ajouté est le premier retiré.
+        
+        **Attention :** Cette opération retire définitivement le ticket de la file.
+        Pour simplement consulter le prochain ticket, utilisez `GET /api/queue/peek`.
+      operationId: dequeueTicket
       responses:
         '200':
-          description: Ticket retiré
+          description: ✅ Ticket retiré avec succès
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ticket'
+              examples:
+                dequeued_ticket:
+                  value:
+                    ticketNumber: 1
+                    status: "WAITING"
+                    creationDate: "2025-07-11T10:30:00Z"
+                    calledDate: null
+                    servedDate: null
+                  summary: Ticket retiré de la file
         '400':
-          description: File vide
+          description: ❌ File d'attente vide
           content:
             text/plain:
               schema:
                 type: string
-                example: "La file est vide."
+                example: "La file est vide"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/queue/peek:
     get:
-      summary: Voir le ticket en tête de la file
-      description: Retourne le ticket en tête sans le retirer
+      tags:
+        - 📋 File d'attente
+      summary: 👀 Voir le prochain ticket
+      description: |
+        Retourne le ticket en **tête de file** sans le retirer.
+        
+        **Utilisation :** Consulter le prochain ticket à traiter sans affecter la file.
+        
+        **Note :** Le ticket reste dans la file après cette opération.
+      operationId: peekQueue
       responses:
         '200':
-          description: Ticket en tête
+          description: ✅ Prochain ticket dans la file
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ticket'
+              examples:
+                next_ticket:
+                  value:
+                    ticketNumber: 2
+                    status: "WAITING"
+                    creationDate: "2025-07-11T10:31:00Z"
+                    calledDate: null
+                    servedDate: null
+                  summary: Prochain ticket à traiter
         '400':
-          description: File vide
+          description: ❌ File d'attente vide
           content:
             text/plain:
               schema:
                 type: string
-                example: "La file est vide."
+                example: "La file est vide"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/queue/isEmpty:
     get:
-      summary: Vérifier si la file est vide
-      description: Retourne true si la file est vide, false sinon
+      tags:
+        - 📋 File d'attente
+      summary: ❓ Vérifier si la file est vide
+      description: |
+        Vérifie si la file d'attente contient des tickets.
+        
+        **Retour :**
+        - `true` : Aucun ticket en attente
+        - `false` : Au moins un ticket en attente
+      operationId: isQueueEmpty
       responses:
         '200':
-          description: Résultat
+          description: ✅ État de la file d'attente
           content:
             text/plain:
               schema:
                 type: string
-                example: "true"
+                enum: ["true", "false"]
+                example: "false"
+              examples:
+                empty_queue:
+                  value: "true"
+                  summary: File vide
+                non_empty_queue:
+                  value: "false"
+                  summary: File non vide
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/queue/size:
     get:
-      summary: Taille de la file
-      description: Retourne le nombre de tickets dans la file
+      tags:
+        - 📋 File d'attente
+      summary: 📊 Taille de la file d'attente
+      description: |
+        Retourne le nombre de tickets actuellement en attente dans la file.
+        
+        **Utilisation :** Monitoring et statistiques de la file d'attente.
+      operationId: getQueueSize
       responses:
         '200':
-          description: Nombre de tickets
+          description: ✅ Nombre de tickets dans la file
           content:
             text/plain:
               schema:
                 type: string
+                pattern: '^[0-9]+$'
                 example: "3"
-  /api/health:
-    get:
-      summary: Vérification de santé
-      description: Vérifie que l'API fonctionne correctement
-      responses:
-        '200':
-          description: API en bonne santé
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthCheckResponse'
+              examples:
+                empty_queue:
+                  value: "0"
+                  summary: File vide
+                small_queue:
+                  value: "3"
+                  summary: 3 tickets en attente
+                large_queue:
+                  value: "15"
+                  summary: 15 tickets en attente
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 components:
   schemas:
     Ticket:
       type: object
+      required:
+        - ticketNumber
+        - status
+        - creationDate
       properties:
         ticketNumber:
           type: integer
+          minimum: 1
+          description: Numéro unique du ticket (auto-généré)
           example: 1
         status:
           type: string
+          enum: ["WAITING", "CALLED", "SERVED"]
+          description: |
+            Statut actuel du ticket :
+            - **WAITING** : En attente d'être appelé
+            - **CALLED** : Appelé, en cours de traitement  
+            - **SERVED** : Traitement terminé
           example: "WAITING"
         creationDate:
           type: string
           format: date-time
+          description: Date et heure de création du ticket
+          example: "2025-07-11T10:30:00Z"
         calledDate:
           type: string
           format: date-time
           nullable: true
+          description: Date et heure où le ticket a été appelé (null si pas encore appelé)
+          example: "2025-07-11T10:35:00Z"
         servedDate:
           type: string
           format: date-time
           nullable: true
-    HealthCheckResponse:
+          description: Date et heure où le ticket a été servi (null si pas encore servi)
+          example: "2025-07-11T10:40:00Z"
+      example:
+        ticketNumber: 1
+        status: "WAITING"
+        creationDate: "2025-07-11T10:30:00Z"
+        calledDate: null
+        servedDate: null
+
+
+    Error:
       type: object
+      required:
+        - error
+        - message
       properties:
-        status:
+        error:
           type: string
-          example: "healthy"
+          description: Type d'erreur
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: Message d'erreur détaillé
+          example: "Le numéro de ticket doit être un entier positif"
         timestamp:
           type: string
           format: date-time
+          description: Horodatage de l'erreur
+          example: "2025-07-11T10:30:00Z"
+        path:
+          type: string
+          description: Chemin de l'endpoint qui a généré l'erreur
+          example: "/api/tickets/call"
+
+  responses:
+    BadRequest:
+      description: ❌ Requête invalide
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "Numéro de ticket invalide"
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            invalid_ticket_number:
+              value:
+                error: "VALIDATION_ERROR"
+                message: "Le numéro de ticket doit être un entier positif"
+                timestamp: "2025-07-11T10:30:00Z"
+                path: "/api/tickets/call"
+              summary: Numéro de ticket invalide
+
+    NotFound:
+      description: ❌ Ressource non trouvée
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "Ticket non trouvé"
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ticket_not_found:
+              value:
+                error: "NOT_FOUND"
+                message: "Aucun ticket trouvé avec ce numéro"
+                timestamp: "2025-07-11T10:30:00Z"
+                path: "/api/tickets/call"
+              summary: Ticket non trouvé
+
+    InternalServerError:
+      description: ❌ Erreur interne du serveur
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "Erreur interne du serveur"
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            server_error:
+              value:
+                error: "INTERNAL_ERROR"
+                message: "Une erreur inattendue s'est produite"
+                timestamp: "2025-07-11T10:30:00Z"
+                path: "/api/tickets"
+              summary: Erreur serveur
