@@ -24,21 +24,10 @@ paths:
               schema:
                 type: string
                 example: "Holla depuis le serveur Java API ! 🚀"
-  /api/health:
-    get:
-      summary: Vérification de santé
-      description: Vérifie que l'API fonctionne correctement
-      responses:
-        '200':
-          description: API en bonne santé
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthCheckResponse'
   /api/tickets:
     post:
       summary: Créer un ticket
-      description: Crée un nouveau ticket et retourne ses informations
+      description: Crée un nouveau ticket et retourne ses informations (statut WAITING)
       responses:
         '201':
           description: Ticket créé
@@ -46,22 +35,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ticket'
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
     get:
-      summary: Liste des tickets
-      description: Retourne la liste de tous les tickets
+      summary: Liste des tickets en attente
+      description: Retourne la liste des tickets en attente (WAITING)
       responses:
         '200':
-          description: Liste des tickets
+          description: Liste des tickets en attente
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ticket'
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
   /api/tickets/call:
     post:
       summary: Appeler un ticket
-      description: Change le statut d'un ticket à "Appelé"
+      description: Passe le ticket du statut WAITING à CALLED
       requestBody:
         required: true
         content:
@@ -84,10 +87,24 @@ paths:
               schema:
                 type: string
                 example: "Ticket non trouvé ou déjà appelé"
+        '400':
+          description: Numéro de ticket invalide
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Numéro de ticket invalide"
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
   /api/tickets/serve:
     post:
       summary: Servir un ticket
-      description: Change le statut d'un ticket à "Servi"
+      description: Passe le ticket du statut CALLED à SERVED
       requestBody:
         required: true
         content:
@@ -110,6 +127,142 @@ paths:
               schema:
                 type: string
                 example: "Ticket non trouvé ou non appelé"
+        '400':
+          description: Numéro de ticket invalide
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Numéro de ticket invalide"
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
+  /api/tickets/called:
+    get:
+      summary: Liste des tickets appelés
+      description: Retourne la liste des tickets avec le statut CALLED
+      responses:
+        '200':
+          description: Liste des tickets appelés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
+  /api/tickets/served:
+    get:
+      summary: Liste des tickets servis
+      description: Retourne la liste des tickets avec le statut SERVED
+      responses:
+        '200':
+          description: Liste des tickets servis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
+  /api/queue/enqueue:
+    post:
+      summary: Ajouter un ticket à la file
+      description: Crée un ticket et l'ajoute à la file d'attente
+      responses:
+        '201':
+          description: Ticket ajouté à la file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+  /api/queue/dequeue:
+    post:
+      summary: Retirer le ticket en tête de la file
+      description: Retire et retourne le ticket en tête de la file
+      responses:
+        '200':
+          description: Ticket retiré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: File vide
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "La file est vide."
+  /api/queue/peek:
+    get:
+      summary: Voir le ticket en tête de la file
+      description: Retourne le ticket en tête sans le retirer
+      responses:
+        '200':
+          description: Ticket en tête
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: File vide
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "La file est vide."
+  /api/queue/isEmpty:
+    get:
+      summary: Vérifier si la file est vide
+      description: Retourne true si la file est vide, false sinon
+      responses:
+        '200':
+          description: Résultat
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "true"
+  /api/queue/size:
+    get:
+      summary: Taille de la file
+      description: Retourne le nombre de tickets dans la file
+      responses:
+        '200':
+          description: Nombre de tickets
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "3"
+  /api/health:
+    get:
+      summary: Vérification de santé
+      description: Vérifie que l'API fonctionne correctement
+      responses:
+        '200':
+          description: API en bonne santé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
 components:
   schemas:
     Ticket:
@@ -132,15 +285,6 @@ components:
           type: string
           format: date-time
           nullable: true
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          example: "Resource not found"
-        statusCode:
-          type: integer
-          example: 404
     HealthCheckResponse:
       type: object
       properties:

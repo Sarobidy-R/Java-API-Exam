@@ -6,8 +6,6 @@ public class Ticket {
     private LocalDateTime creationDate;
     private LocalDateTime calledDate;
     private LocalDateTime servedDate;
-    
-    private static int currentTicketNumber = 0;
 
     public enum TicketStatus {
         WAITING("En attente"),
@@ -25,8 +23,8 @@ public class Ticket {
         }
     }
 
-    public Ticket() {
-        this.ticketNumber = ++currentTicketNumber;
+    public Ticket(int ticketNumber) {
+        this.ticketNumber = ticketNumber;
         this.status = TicketStatus.WAITING;
         this.creationDate = LocalDateTime.now();
         this.calledDate = null;
