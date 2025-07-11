@@ -34,17 +34,104 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "healthy"
-                  timestamp:
-                    type: string
-                    format: date-time
-
+                $ref: '#/components/schemas/HealthCheckResponse'
+  /api/tickets:
+    post:
+      summary: Créer un ticket
+      description: Crée un nouveau ticket et retourne ses informations
+      responses:
+        '201':
+          description: Ticket créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+    get:
+      summary: Liste des tickets
+      description: Retourne la liste de tous les tickets
+      responses:
+        '200':
+          description: Liste des tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+  /api/tickets/call:
+    post:
+      summary: Appeler un ticket
+      description: Change le statut d'un ticket à "Appelé"
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: integer
+              example: 1
+      responses:
+        '200':
+          description: Ticket appelé
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Ticket appelé"
+        '404':
+          description: Ticket non trouvé ou déjà appelé
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Ticket non trouvé ou déjà appelé"
+  /api/tickets/serve:
+    post:
+      summary: Servir un ticket
+      description: Change le statut d'un ticket à "Servi"
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: integer
+              example: 1
+      responses:
+        '200':
+          description: Ticket servi
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Ticket servi"
+        '404':
+          description: Ticket non trouvé ou non appelé
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Ticket non trouvé ou non appelé"
 components:
   schemas:
+    Ticket:
+      type: object
+      properties:
+        ticketNumber:
+          type: integer
+          example: 1
+        status:
+          type: string
+          example: "WAITING"
+        creationDate:
+          type: string
+          format: date-time
+        calledDate:
+          type: string
+          format: date-time
+          nullable: true
+        servedDate:
+          type: string
+          format: date-time
+          nullable: true
     ErrorResponse:
       type: object
       properties:

@@ -66,12 +66,17 @@ public class Ticket {
 
     @Override
     public String toString() {
-        return "Ticket{" +
-                "ticketNumber=" + ticketNumber +
-                ", status=" + status +
-                ", creationDate=" + creationDate +
-                ", calledDate=" + calledDate +
-                ", servedDate=" + servedDate +
-                '}';
+        return toJson();
+    }
+
+    public String toJson() {
+        return String.format(
+            "{\"ticketNumber\":%d,\"status\":\"%s\",\"creationDate\":\"%s\",\"calledDate\":%s,\"servedDate\":%s}",
+            ticketNumber,
+            status,
+            creationDate,
+            calledDate == null ? "null" : "\"" + calledDate + "\"",
+            servedDate == null ? "null" : "\"" + servedDate + "\""
+        );
     }
 }

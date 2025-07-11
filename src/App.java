@@ -3,11 +3,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class App {
     public static void main(String[] args) throws IOException {
         int port = 8080;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        TicketService ticketService = new TicketService();
 
         // Endpoint principal
         server.createContext("/", exchange -> {
@@ -78,6 +80,90 @@ public class App {
             exchange.sendResponseHeaders(200, healthResponse.getBytes().length);
             exchange.getResponseBody().write(healthResponse.getBytes());
             exchange.close();
+        });
+
+        // Endpoint pour créer un ticket
+        server.createContext("/api/tickets", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            if ("POST".equals(exchange.getRequestMethod())) {
+                Ticket ticket = ticketService.createTicket();
+                String response = ticket.toJson();
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(201, response.getBytes().length);
+                exchange.getResponseBody().write(response.getBytes());
+                exchange.close();
+            } else if ("GET".equals(exchange.getRequestMethod())) {
+                List<Ticket> tickets = ticketService.getAllTickets();
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+                for (int i = 0; i < tickets.size(); i++) {
+                    sb.append(tickets.get(i).toJson());
+                    if (i < tickets.size() - 1) sb.append(",");
+                }
+                sb.append("]");
+                String response = sb.toString();
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                exchange.getResponseBody().write(response.getBytes());
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        });
+
+        // Endpoint pour appeler un ticket
+        server.createContext("/api/tickets/call", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            if ("POST".equals(exchange.getRequestMethod())) {
+                String query = new String(exchange.getRequestBody().readAllBytes());
+                int ticketNumber = Integer.parseInt(query.trim());
+                boolean called = ticketService.callTicket(ticketNumber);
+                String response = called ? "Ticket appelé" : "Ticket non trouvé ou déjà appelé";
+                exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+                exchange.sendResponseHeaders(called ? 200 : 404, response.getBytes().length);
+                exchange.getResponseBody().write(response.getBytes());
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        });
+
+        // Endpoint pour servir un ticket
+        server.createContext("/api/tickets/serve", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            if ("POST".equals(exchange.getRequestMethod())) {
+                String query = new String(exchange.getRequestBody().readAllBytes());
+                int ticketNumber = Integer.parseInt(query.trim());
+                boolean served = ticketService.serveTicket(ticketNumber);
+                String response = served ? "Ticket servi" : "Ticket non trouvé ou non appelé";
+                exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+                exchange.sendResponseHeaders(served ? 200 : 404, response.getBytes().length);
+                exchange.getResponseBody().write(response.getBytes());
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
         });
 
         server.setExecutor(null);
