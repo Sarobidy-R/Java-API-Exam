@@ -1,8 +1,6 @@
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class App {
@@ -10,7 +8,6 @@ public class App {
         int port = 8080;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         TicketService ticketService = new TicketService();
-        TicketQueue ticketQueue = new TicketQueue();
 
         // Endpoint principal
         server.createContext("/", exchange -> {
@@ -25,61 +22,6 @@ public class App {
             exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
             exchange.sendResponseHeaders(200, response.getBytes().length);
             exchange.getResponseBody().write(response.getBytes());
-            exchange.close();
-        });
-
-        // Endpoint pour servir le fichier swagger.yaml
-        server.createContext("/swagger.yaml", exchange -> {
-            if ("OPTIONS".equals(exchange.getRequestMethod())) {
-                addCorsHeaders(exchange);
-                exchange.sendResponseHeaders(204, -1);
-                exchange.close();
-                return;
-            }
-            addCorsHeaders(exchange);
-            try {
-                byte[] content = Files.readAllBytes(Paths.get("swagger.yaml"));
-                exchange.getResponseHeaders().set("Content-Type", "application/yaml");
-                exchange.sendResponseHeaders(200, content.length);
-                exchange.getResponseBody().write(content);
-            } catch (IOException e) {
-                String errorMsg = "Erreur lors de la lecture du fichier swagger.yaml";
-                exchange.sendResponseHeaders(500, errorMsg.length());
-                exchange.getResponseBody().write(errorMsg.getBytes());
-            }
-            exchange.close();
-        });
-
-        // Endpoint pour Swagger UI
-        server.createContext("/swagger", exchange -> {
-            if ("OPTIONS".equals(exchange.getRequestMethod())) {
-                addCorsHeaders(exchange);
-                exchange.sendResponseHeaders(204, -1);
-                exchange.close();
-                return;
-            }
-            addCorsHeaders(exchange);
-            String swaggerUI = generateSwaggerUI();
-            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
-            exchange.sendResponseHeaders(200, swaggerUI.getBytes().length);
-            exchange.getResponseBody().write(swaggerUI.getBytes());
-            exchange.close();
-        });
-
-        // Endpoint de santé
-        server.createContext("/api/health", exchange -> {
-            if ("OPTIONS".equals(exchange.getRequestMethod())) {
-                addCorsHeaders(exchange);
-                exchange.sendResponseHeaders(204, -1);
-                exchange.close();
-                return;
-            }
-            addCorsHeaders(exchange);
-            String healthResponse = "{\"status\":\"healthy\",\"timestamp\":\"" +
-                    java.time.Instant.now().toString() + "\"}";
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, healthResponse.getBytes().length);
-            exchange.getResponseBody().write(healthResponse.getBytes());
             exchange.close();
         });
 
@@ -100,7 +42,7 @@ public class App {
                 exchange.getResponseBody().write(response.getBytes());
                 exchange.close();
             } else if ("GET".equals(exchange.getRequestMethod())) {
-                List<Ticket> tickets = ticketService.getAllTickets();
+                List<Ticket> tickets = ticketService.getWaitingTickets();
                 StringBuilder sb = new StringBuilder();
                 sb.append("[");
                 for (int i = 0; i < tickets.size(); i++) {
@@ -167,6 +109,44 @@ public class App {
             }
         });
 
+        // Endpoint pour servir le fichier swagger.yaml
+        server.createContext("/swagger.yaml", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            try {
+                byte[] content = java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("swagger.yaml"));
+                exchange.getResponseHeaders().set("Content-Type", "application/yaml");
+                exchange.sendResponseHeaders(200, content.length);
+                exchange.getResponseBody().write(content);
+            } catch (IOException e) {
+                String errorMsg = "Erreur lors de la lecture du fichier swagger.yaml";
+                exchange.sendResponseHeaders(500, errorMsg.length());
+                exchange.getResponseBody().write(errorMsg.getBytes());
+            }
+            exchange.close();
+        });
+
+        // Endpoint pour Swagger UI
+        server.createContext("/swagger", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            String swaggerUI = generateSwaggerUI();
+            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+            exchange.sendResponseHeaders(200, swaggerUI.getBytes().length);
+            exchange.getResponseBody().write(swaggerUI.getBytes());
+            exchange.close();
+        });
+
         // Endpoint pour ajouter un ticket à la file
         server.createContext("/api/queue/enqueue", exchange -> {
             if ("OPTIONS".equals(exchange.getRequestMethod())) {
@@ -178,7 +158,6 @@ public class App {
             addCorsHeaders(exchange);
             if ("POST".equals(exchange.getRequestMethod())) {
                 Ticket ticket = ticketService.createTicket();
-                ticketQueue.enqueue(ticket);
                 String response = ticket.toJson();
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
                 exchange.sendResponseHeaders(201, response.getBytes().length);
@@ -201,7 +180,7 @@ public class App {
             addCorsHeaders(exchange);
             if ("POST".equals(exchange.getRequestMethod())) {
                 try {
-                    Ticket ticket = ticketQueue.dequeue();
+                    Ticket ticket = ticketService.dequeue();
                     String response = ticket.toJson();
                     exchange.getResponseHeaders().set("Content-Type", "application/json");
                     exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -229,7 +208,7 @@ public class App {
             addCorsHeaders(exchange);
             if ("GET".equals(exchange.getRequestMethod())) {
                 try {
-                    Ticket ticket = ticketQueue.peek();
+                    Ticket ticket = ticketService.peek();
                     String response = ticket.toJson();
                     exchange.getResponseHeaders().set("Content-Type", "application/json");
                     exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -256,7 +235,7 @@ public class App {
             }
             addCorsHeaders(exchange);
             if ("GET".equals(exchange.getRequestMethod())) {
-                boolean empty = ticketQueue.isEmpty();
+                boolean empty = ticketService.isEmpty();
                 String response = empty ? "true" : "false";
                 exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
                 exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -278,7 +257,7 @@ public class App {
             }
             addCorsHeaders(exchange);
             if ("GET".equals(exchange.getRequestMethod())) {
-                int size = ticketQueue.size();
+                int size = ticketService.size();
                 String response = String.valueOf(size);
                 exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
                 exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -296,6 +275,7 @@ public class App {
         System.out.println("📖 Documentation Swagger disponible sur http://localhost:" + port + "/swagger");
         server.start();
     }
+    
     // Ajoute les en-têtes CORS pour permettre les requêtes cross-origin
     public static void addCorsHeaders(com.sun.net.httpserver.HttpExchange exchange) {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
@@ -306,31 +286,22 @@ public class App {
     private static String generateSwaggerUI() {
         return """
                 <!DOCTYPE html>
-                <html lang="fr">
+                <html lang=\"fr\">
                 <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <meta charset=\"UTF-8\">
+                    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
                     <title>API Documentation - Swagger UI</title>
-                    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css" />
+                    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css\" />
                     <style>
-                        html {
-                            box-sizing: border-box;
-                            overflow: -moz-scrollbars-vertical;
-                            overflow-y: scroll;
-                        }
-                        *, *:before, *:after {
-                            box-sizing: inherit;
-                        }
-                        body {
-                            margin:0;
-                            background: #fafafa;
-                        }
+                        html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+                        *, *:before, *:after { box-sizing: inherit; }
+                        body { margin:0; background: #fafafa; }
                     </style>
                 </head>
                 <body>
-                    <div id="swagger-ui"></div>
-                    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
-                    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+                    <div id=\"swagger-ui\"></div>
+                    <script src=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js\"></script>
+                    <script src=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js\"></script>
                     <script>
                         window.onload = function() {
                             const ui = SwaggerUIBundle({
@@ -344,7 +315,7 @@ public class App {
                                 plugins: [
                                     SwaggerUIBundle.plugins.DownloadUrl
                                 ],
-                                layout: "StandaloneLayout"
+                                layout: \"StandaloneLayout\"
                             });
                         };
                     </script>

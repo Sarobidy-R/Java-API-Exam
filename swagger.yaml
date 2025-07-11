@@ -24,21 +24,10 @@ paths:
               schema:
                 type: string
                 example: "Holla depuis le serveur Java API ! 🚀"
-  /api/health:
-    get:
-      summary: Vérification de santé
-      description: Vérifie que l'API fonctionne correctement
-      responses:
-        '200':
-          description: API en bonne santé
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthCheckResponse'
   /api/tickets:
     post:
       summary: Créer un ticket
-      description: Crée un nouveau ticket et retourne ses informations
+      description: Crée un nouveau ticket et retourne ses informations (statut WAITING)
       responses:
         '201':
           description: Ticket créé
@@ -47,11 +36,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Ticket'
     get:
-      summary: Liste des tickets
-      description: Retourne la liste de tous les tickets
+      summary: Liste des tickets en attente
+      description: Retourne la liste des tickets en attente (WAITING)
       responses:
         '200':
-          description: Liste des tickets
+          description: Liste des tickets en attente
           content:
             application/json:
               schema:
@@ -61,7 +50,7 @@ paths:
   /api/tickets/call:
     post:
       summary: Appeler un ticket
-      description: Change le statut d'un ticket à "Appelé"
+      description: Passe le ticket du statut WAITING à CALLED
       requestBody:
         required: true
         content:
@@ -87,7 +76,7 @@ paths:
   /api/tickets/serve:
     post:
       summary: Servir un ticket
-      description: Change le statut d'un ticket à "Servi"
+      description: Passe le ticket du statut CALLED à SERVED
       requestBody:
         required: true
         content:
@@ -181,6 +170,17 @@ paths:
               schema:
                 type: string
                 example: "3"
+  /api/health:
+    get:
+      summary: Vérification de santé
+      description: Vérifie que l'API fonctionne correctement
+      responses:
+        '200':
+          description: API en bonne santé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
 components:
   schemas:
     Ticket:
@@ -203,15 +203,6 @@ components:
           type: string
           format: date-time
           nullable: true
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          example: "Resource not found"
-        statusCode:
-          type: integer
-          example: 404
     HealthCheckResponse:
       type: object
       properties:
