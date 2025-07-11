@@ -35,6 +35,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ticket'
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
     get:
       summary: Liste des tickets en attente
       description: Retourne la liste des tickets en attente (WAITING)
@@ -47,6 +54,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ticket'
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
   /api/tickets/call:
     post:
       summary: Appeler un ticket
@@ -73,6 +87,20 @@ paths:
               schema:
                 type: string
                 example: "Ticket non trouvé ou déjà appelé"
+        '400':
+          description: Numéro de ticket invalide
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Numéro de ticket invalide"
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
   /api/tickets/serve:
     post:
       summary: Servir un ticket
@@ -99,6 +127,60 @@ paths:
               schema:
                 type: string
                 example: "Ticket non trouvé ou non appelé"
+        '400':
+          description: Numéro de ticket invalide
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Numéro de ticket invalide"
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
+  /api/tickets/called:
+    get:
+      summary: Liste des tickets appelés
+      description: Retourne la liste des tickets avec le statut CALLED
+      responses:
+        '200':
+          description: Liste des tickets appelés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
+  /api/tickets/served:
+    get:
+      summary: Liste des tickets servis
+      description: Retourne la liste des tickets avec le statut SERVED
+      responses:
+        '200':
+          description: Liste des tickets servis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+        '500':
+          description: Erreur interne
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur interne"
   /api/queue/enqueue:
     post:
       summary: Ajouter un ticket à la file
