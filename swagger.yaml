@@ -1,0 +1,65 @@
+openapi: 3.0.3
+info:
+  title: Java API REST
+  description: Documentation de l'API REST Java
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+servers:
+  - url: http://localhost:8080
+    description: Serveur de développement
+  - url: https://your-render-app.onrender.com
+    description: Serveur de production
+paths:
+  /:
+    get:
+      summary: Endpoint de base
+      description: Retourne un message de bienvenue
+      responses:
+        '200':
+          description: Message de bienvenue
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Holla depuis le serveur Java API ! 🚀"
+  /api/health:
+    get:
+      summary: Vérification de santé
+      description: Vérifie que l'API fonctionne correctement
+      responses:
+        '200':
+          description: API en bonne santé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Resource not found"
+        statusCode:
+          type: integer
+          example: 404
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time

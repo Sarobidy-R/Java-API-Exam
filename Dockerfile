@@ -20,6 +20,9 @@ WORKDIR /app
 # Copie des fichiers compilés depuis le stage de build
 COPY --from=build /src/*.class /app/
 
+# Copie du fichier swagger.yaml pour la documentation
+COPY ./swagger.yaml /app/
+
 # Expose le port 8080 pour l'application Java
 EXPOSE 8080
 
