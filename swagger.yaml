@@ -9,7 +9,7 @@ info:
 servers:
   - url: http://localhost:8080
     description: Serveur de développement
-  - url: https://your-render-app.onrender.com
+  - url: https://java-api-exam-latest.onrender.com/
     description: Serveur de production
 paths:
   /:
