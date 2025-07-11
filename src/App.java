@@ -10,6 +10,7 @@ public class App {
         int port = 8080;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         TicketService ticketService = new TicketService();
+        TicketQueue ticketQueue = new TicketQueue();
 
         // Endpoint principal
         server.createContext("/", exchange -> {
@@ -158,6 +159,129 @@ public class App {
                 String response = served ? "Ticket servi" : "Ticket non trouvé ou non appelé";
                 exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
                 exchange.sendResponseHeaders(served ? 200 : 404, response.getBytes().length);
+                exchange.getResponseBody().write(response.getBytes());
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        });
+
+        // Endpoint pour ajouter un ticket à la file
+        server.createContext("/api/queue/enqueue", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            if ("POST".equals(exchange.getRequestMethod())) {
+                Ticket ticket = ticketService.createTicket();
+                ticketQueue.enqueue(ticket);
+                String response = ticket.toJson();
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(201, response.getBytes().length);
+                exchange.getResponseBody().write(response.getBytes());
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        });
+
+        // Endpoint pour retirer le ticket en tête de la file
+        server.createContext("/api/queue/dequeue", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            if ("POST".equals(exchange.getRequestMethod())) {
+                try {
+                    Ticket ticket = ticketQueue.dequeue();
+                    String response = ticket.toJson();
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, response.getBytes().length);
+                    exchange.getResponseBody().write(response.getBytes());
+                } catch (Exception e) {
+                    String response = e.getMessage();
+                    exchange.sendResponseHeaders(400, response.getBytes().length);
+                    exchange.getResponseBody().write(response.getBytes());
+                }
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        });
+
+        // Endpoint pour voir le ticket en tête de la file
+        server.createContext("/api/queue/peek", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            if ("GET".equals(exchange.getRequestMethod())) {
+                try {
+                    Ticket ticket = ticketQueue.peek();
+                    String response = ticket.toJson();
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, response.getBytes().length);
+                    exchange.getResponseBody().write(response.getBytes());
+                } catch (Exception e) {
+                    String response = e.getMessage();
+                    exchange.sendResponseHeaders(400, response.getBytes().length);
+                    exchange.getResponseBody().write(response.getBytes());
+                }
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        });
+
+        // Endpoint pour vérifier si la file est vide
+        server.createContext("/api/queue/isEmpty", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            if ("GET".equals(exchange.getRequestMethod())) {
+                boolean empty = ticketQueue.isEmpty();
+                String response = empty ? "true" : "false";
+                exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                exchange.getResponseBody().write(response.getBytes());
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        });
+
+        // Endpoint pour la taille de la file
+        server.createContext("/api/queue/size", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
+            if ("GET".equals(exchange.getRequestMethod())) {
+                int size = ticketQueue.size();
+                String response = String.valueOf(size);
+                exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+                exchange.sendResponseHeaders(200, response.getBytes().length);
                 exchange.getResponseBody().write(response.getBytes());
                 exchange.close();
             } else {

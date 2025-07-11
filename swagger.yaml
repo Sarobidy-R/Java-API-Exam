@@ -110,6 +110,77 @@ paths:
               schema:
                 type: string
                 example: "Ticket non trouvé ou non appelé"
+  /api/queue/enqueue:
+    post:
+      summary: Ajouter un ticket à la file
+      description: Crée un ticket et l'ajoute à la file d'attente
+      responses:
+        '201':
+          description: Ticket ajouté à la file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+  /api/queue/dequeue:
+    post:
+      summary: Retirer le ticket en tête de la file
+      description: Retire et retourne le ticket en tête de la file
+      responses:
+        '200':
+          description: Ticket retiré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: File vide
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "La file est vide."
+  /api/queue/peek:
+    get:
+      summary: Voir le ticket en tête de la file
+      description: Retourne le ticket en tête sans le retirer
+      responses:
+        '200':
+          description: Ticket en tête
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: File vide
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "La file est vide."
+  /api/queue/isEmpty:
+    get:
+      summary: Vérifier si la file est vide
+      description: Retourne true si la file est vide, false sinon
+      responses:
+        '200':
+          description: Résultat
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "true"
+  /api/queue/size:
+    get:
+      summary: Taille de la file
+      description: Retourne le nombre de tickets dans la file
+      responses:
+        '200':
+          description: Nombre de tickets
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "3"
 components:
   schemas:
     Ticket:
