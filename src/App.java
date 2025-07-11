@@ -11,6 +11,13 @@ public class App {
 
         // Endpoint principal
         server.createContext("/", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
             String response = "Holla depuis le serveur Java API ! 🚀";
             exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
             exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -20,10 +27,16 @@ public class App {
 
         // Endpoint pour servir le fichier swagger.yaml
         server.createContext("/swagger.yaml", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
             try {
                 byte[] content = Files.readAllBytes(Paths.get("swagger.yaml"));
                 exchange.getResponseHeaders().set("Content-Type", "application/yaml");
-                exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
                 exchange.sendResponseHeaders(200, content.length);
                 exchange.getResponseBody().write(content);
             } catch (IOException e) {
@@ -36,6 +49,13 @@ public class App {
 
         // Endpoint pour Swagger UI
         server.createContext("/swagger", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
             String swaggerUI = generateSwaggerUI();
             exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
             exchange.sendResponseHeaders(200, swaggerUI.getBytes().length);
@@ -45,6 +65,13 @@ public class App {
 
         // Endpoint de santé
         server.createContext("/api/health", exchange -> {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                addCorsHeaders(exchange);
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+            addCorsHeaders(exchange);
             String healthResponse = "{\"status\":\"healthy\",\"timestamp\":\"" +
                     java.time.Instant.now().toString() + "\"}";
             exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -58,6 +85,12 @@ public class App {
         System.out.println("🌐 Accédez à l'API via http://localhost:" + port);
         System.out.println("📖 Documentation Swagger disponible sur http://localhost:" + port + "/swagger");
         server.start();
+    }
+    // Ajoute les en-têtes CORS pour permettre les requêtes cross-origin
+    public static void addCorsHeaders(com.sun.net.httpserver.HttpExchange exchange) {
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
     }
 
     private static String generateSwaggerUI() {
