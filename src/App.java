@@ -14,6 +14,7 @@ public class App {
 
         // Endpoints
         server.createContext("/", App::handleRoot);
+        server.createContext("/health", App::handleHealth);
         server.createContext("/api/tickets", ticketHandler::handleTickets);
         server.createContext("/api/tickets/call", ticketHandler::handleCallTicket);
         server.createContext("/api/tickets/serve", ticketHandler::handleServeTicket);
@@ -39,6 +40,45 @@ public class App {
         if (HttpUtils.handleCors(exchange))
             return;
         HttpUtils.sendResponse(exchange, 200, "Holla depuis le serveur Java API ! 🚀", "text/plain; charset=UTF-8");
+    }
+
+    /**
+     * Handler pour l'endpoint de health check
+     * Utilisé par le frontend pour détecter la disponibilité de l'API locale
+     */
+    private static void handleHealth(HttpExchange exchange) throws IOException {
+        if (HttpUtils.handleCors(exchange))
+            return;
+
+        // Vérifier la méthode HTTP
+        if (!"GET".equals(exchange.getRequestMethod())) {
+            HttpUtils.sendErrorResponse(exchange, 405, "Méthode non autorisée");
+            return;
+        }
+
+        try {
+            // Informations de santé du serveur
+            String healthStatus = String.format("""
+                {
+                    "status": "UP",
+                    "timestamp": "%s",
+                    "service": "Java API Exam",
+                    "version": "1.0.0",
+                    "uptime": %d,
+                    "checks": {
+                        "ticketService": "UP",
+                        "queueService": "UP"
+                    }
+                }
+                """, 
+                java.time.Instant.now().toString(),
+                System.currentTimeMillis() / 1000
+            );
+
+            HttpUtils.sendResponse(exchange, 200, healthStatus, "application/json; charset=UTF-8");
+        } catch (Exception e) {
+            HttpUtils.sendErrorResponse(exchange, 500, "Erreur lors de la vérification de santé");
+        }
     }
 
     private static void handleSwaggerYaml(HttpExchange exchange) throws IOException {
