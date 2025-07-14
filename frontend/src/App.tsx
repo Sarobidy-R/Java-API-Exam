@@ -6,6 +6,7 @@ import { ControlPanel } from './components/ControlPanel';
 import { SettingsPanel } from './components/SettingsPanel';
 import { ApiStatus } from './components/ApiStatus';
 import { RenderApiNotification } from './components/RenderApiNotification';
+import { ApiEnvironmentDisplay } from './components/ApiEnvironmentDisplay';
 import { 
   useWaitingTickets, 
   useCalledTickets, 
@@ -70,7 +71,7 @@ function App() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-600 rounded-lg">
                 <Server className="h-6 w-6 text-white" />
@@ -83,27 +84,32 @@ function App() {
                   <ApiStatus />
                 </div>
                 <p className="text-sm text-gray-600">
-                  Interface de test pour l'API déployée sur Render
+                  Interface de test avec détection automatique d'environnement
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
-              <SettingsPanel
-                isAutoRefreshEnabled={isAutoRefreshEnabled}
-                onToggleAutoRefresh={toggleAutoRefresh}
-                refreshInterval={interval}
-                onIntervalChange={setInterval}
-              />
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+              {/* Configuration de l'API */}
+              <ApiEnvironmentDisplay className="lg:min-w-[280px]" />
               
-              <button
-                onClick={refreshAll}
-                disabled={isLoading}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-                Actualiser
-              </button>
+              <div className="flex items-center gap-3">
+                <SettingsPanel
+                  isAutoRefreshEnabled={isAutoRefreshEnabled}
+                  onToggleAutoRefresh={toggleAutoRefresh}
+                  refreshInterval={interval}
+                  onIntervalChange={setInterval}
+                />
+                
+                <button
+                  onClick={refreshAll}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+                  Actualiser
+                </button>
+              </div>
             </div>
           </div>
           

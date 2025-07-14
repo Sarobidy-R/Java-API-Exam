@@ -51,6 +51,74 @@ paths:
                   value: "Holla depuis le serveur Java API ! 🚀"
                   summary: Message d'accueil standard
 
+  /health:
+    get:
+      tags:
+        - 🏠 Général
+      summary: 🩺 Health Check
+      description: |
+        Endpoint de santé pour vérifier que l'API est fonctionnelle.
+        
+        **Utilisation :** 
+        - Détection automatique de l'API locale par le frontend
+        - Monitoring et supervision de l'application
+        - Vérification du statut des services internes
+      operationId: getHealth
+      responses:
+        '200':
+          description: ✅ API en bonne santé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [UP, DOWN]
+                    description: Statut général de l'API
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Horodatage de la vérification
+                  service:
+                    type: string
+                    description: Nom du service
+                  version:
+                    type: string
+                    description: Version de l'API
+                  uptime:
+                    type: integer
+                    description: Temps de fonctionnement en secondes
+                  checks:
+                    type: object
+                    properties:
+                      ticketService:
+                        type: string
+                        enum: [UP, DOWN]
+                      queueService:
+                        type: string
+                        enum: [UP, DOWN]
+                    description: État des services internes
+              examples:
+                healthy:
+                  summary: API en bonne santé
+                  value:
+                    status: "UP"
+                    timestamp: "2025-07-14T10:30:00Z"
+                    service: "Java API Exam"
+                    version: "1.0.0"
+                    uptime: 3600
+                    checks:
+                      ticketService: "UP"
+                      queueService: "UP"
+        '500':
+          description: ❌ Erreur interne du serveur
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Erreur lors de la vérification de santé"
+
   /api/tickets:
     post:
       tags:

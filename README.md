@@ -88,6 +88,42 @@ javac -d bin src/*.java
 java -cp bin App
 ```
 
+## 🎨 Frontend (Interface Web)
+
+### ✨ Configuration automatique
+
+Le frontend **détecte automatiquement** l'environnement et configure l'API appropriée :
+
+- **🏠 Développement local** : `http://localhost:8080` (si disponible)
+- **🌐 Production** : `https://java-api-exam-latest.onrender.com`
+
+### 🚀 Lancement du frontend
+
+```bash
+# Naviguer vers le dossier frontend
+cd frontend
+
+# Installer les dépendances  
+npm install
+
+# Lancer en mode développement
+npm run dev
+```
+
+**✅ Aucune configuration manuelle requise !** L'interface s'adapte automatiquement selon l'environnement détecté.
+
+### 🔧 Configuration manuelle (optionnelle)
+
+Pour forcer une URL d'API spécifique, modifiez `frontend/.env` :
+
+```bash
+# Forcer l'API locale
+VITE_API_URL=http://localhost:8080
+
+# Forcer l'API de production  
+VITE_API_URL=https://java-api-exam-latest.onrender.com
+```
+
 ## 📖 Documentation API
 
 ### 🎯 Endpoints principaux
