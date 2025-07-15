@@ -25,8 +25,8 @@ jobs:
           distribution: "temurin"
       - name: Compile Java project
         run: |
-          mkdir -p bin
-          javac -d bin src/*.java
+          mkdir -p API/bin
+          javac -d API/bin API/src/*.java
       - name: Build Docker image
         run: |
           BRANCH_NAME_SAFE=$(echo "${{ github.ref_name }}" | sed 's#[^a-zA-Z0-9._-]#-#g')
@@ -34,7 +34,7 @@ jobs:
           IMAGE_NAME_LC_LATEST="ghcr.io/${{ github.repository }}:latest"
           IMAGE_NAME_LC=$(echo $IMAGE_NAME_LC | tr '[:upper:]' '[:lower:]')
           IMAGE_NAME_LC_LATEST=$(echo $IMAGE_NAME_LC_LATEST | tr '[:upper:]' '[:lower:]')
-          docker build -t $IMAGE_NAME_LC .
+          docker build -f api.Dockerfile -t $IMAGE_NAME_LC .
           docker tag $IMAGE_NAME_LC $IMAGE_NAME_LC_LATEST
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
