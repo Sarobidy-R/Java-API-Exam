@@ -71,3 +71,18 @@ jobs:
         if: always()
         run: |
           docker stop $(docker ps -q)
+
+  render-deploy:
+    needs: test-with-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deployment
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true))
+        run: |
+          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
+            echo "Triggering Render deployment..."
+            curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+            echo "Render deployment triggered successfully!"
+          else
+            echo "RENDER_DEPLOY_HOOK secret not found - skipping deployment trigger"
+          fi
