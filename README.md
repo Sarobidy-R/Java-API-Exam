@@ -179,8 +179,8 @@ Le projet utilise une approche **multi-conteneurs** avec Docker Compose :
 │   ├── src/                 # Sources Java
 │   └── ...
 └── 📁 frontend/             # Code source Frontend
-    ├── src/                 # Sources React/TypeScript
-    └── ...
+  ├── src/                 # Sources React/TypeScript
+  └── ...
 ```
 
 ### ⚙️ Services Docker
@@ -482,11 +482,6 @@ src/
 - **URL de production** : https://java-api-front.netlify.app
 - **Configuration automatique** : Détection d'environnement intégrée
 
-### 🔗 URLs de production
-- **API Backend** : https://java-api-exam-latest.onrender.com
-- **Interface Frontend** : https://java-api-front.netlify.app
-- **Documentation Swagger** : https://java-api-exam-latest.onrender.com/swagger
-
 ## 🔄 CI/CD
 
 Le projet utilise GitHub Actions pour :
@@ -508,111 +503,3 @@ Ce projet est sous licence MIT.
 ---
 
 🎯 **Projet full-stack moderne : Backend Java + Frontend React déployé sur Render + Netlify**
-| `GET` | `/api/tickets/served` | Lister les tickets servis |
-
-### 📋 Endpoints de file d'attente
-
-| Méthode | Endpoint | Description |
-|---------|----------|-------------|
-| `POST` | `/api/queue/enqueue` | Ajouter un ticket à la file |
-| `POST` | `/api/queue/dequeue` | Retirer le ticket en tête |
-| `GET` | `/api/queue/peek` | Voir le prochain ticket |
-| `GET` | `/api/queue/isEmpty` | Vérifier si la file est vide |
-| `GET` | `/api/queue/size` | Taille de la file |
-
-
-## 🎨 Exemple d'utilisation
-
-### Créer un ticket
-```bash
-curl -X POST http://localhost:8080/api/tickets
-```
-
-Réponse :
-```json
-{
-  "ticketNumber": 1,
-  "status": "WAITING",
-  "creationDate": "2025-07-12T10:30:00Z",
-  "calledDate": null,
-  "servedDate": null
-}
-```
-
-### Appeler un ticket
-```bash
-curl -X POST http://localhost:8080/api/tickets/call \
-  -H "Content-Type: text/plain" \
-  -d "1"
-```
-
-### Consulter les tickets en attente
-```bash
-curl http://localhost:8080/api/tickets
-```
-
-## 🏗️ Architecture
-
-```
-src/
-├── App.java              # Point d'entrée principal
-├── TicketHandler.java     # Handlers HTTP pour les tickets
-├── QueueHandler.java      # Handlers HTTP pour la file d'attente
-├── TicketService.java     # Service de gestion des tickets
-├── QueueService.java      # Service générique de file d'attente
-├── Ticket.java           # Modèle de données
-└── HttpUtils.java        # Utilitaires HTTP (CORS, réponses)
-```
-
-### 🎯 Principe de fonctionnement
-
-1. **🆕 Création** : Un ticket est créé avec un numéro unique et ajouté à la file d'attente (`WAITING`)
-2. **📞 Appel** : Le ticket passe du statut `WAITING` à `CALLED`
-3. **✅ Service** : Le ticket passe du statut `CALLED` à `SERVED`
-4. **📊 Suivi** : Consultation possible à chaque étape
-
-## 🔄 CI/CD
-
-Le projet utilise GitHub Actions pour :
-- ✅ **Build automatique** à chaque push
-- 🧪 **Tests** de compilation
-- 🐳 **Build Docker** et push vers le registry
-- 🚀 **Déploiement automatique** sur Render
-
-## 🐳 Docker
-
-### Build manuel
-```bash
-# Build de l'image
-docker build -t java-api-exam .
-
-# Lancement du conteneur
-docker run -p 8080:8080 java-api-exam
-```
-
-### Multi-stage build
-Le Dockerfile utilise un build multi-stage pour optimiser la taille de l'image finale :
-1. **Stage 1** : Compilation avec JDK complet
-2. **Stage 2** : Exécution avec JRE optimisé
-
-## 📊 Statuts des tickets
-
-| Statut | Description | Actions disponibles |
-|--------|-------------|-------------------|
-| `WAITING` | En attente d'être appelé | Peut être appelé |
-| `CALLED` | Appelé, en cours de traitement | Peut être servi |
-| `SERVED` | Traitement terminé | Aucune action |
-
-## 📝 Licence
-
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
-## 👤 Auteur
-
-**Sarobidy-R**
-- GitHub: [@Sarobidy-R](https://github.com/Sarobidy-R)
-- Repository: [Java-API-Exam](https://github.com/Sarobidy-R/Java-API-Exam)
-
-
----
-
