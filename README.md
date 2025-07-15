@@ -71,46 +71,150 @@ Ce projet est un **système complet de gestion de tickets** comprenant une API R
 - [Docker](https://docs.docker.com/get-docker/) installé
 - [Docker Compose](https://docs.docker.com/compose/install/) installé
 
-#### Lancement
+#### Lancement complet (Backend + Frontend)
 ```bash
 # Cloner le repository
 git clone https://github.com/Sarobidy-R/Java-API-Exam.git
 cd Java-API-Exam
 
-# Lancer avec Docker Compose
+# Lancer tous les services avec Docker Compose
 docker compose up --build
 
 # Ou en arrière-plan
 docker compose up --build -d
 ```
 
-#### Accès
-- 🌐 **API** : [http://localhost:8080](http://localhost:8080)
+#### 🎯 **Services disponibles :**
+- 🚀 **API Backend** : [http://localhost:8080](http://localhost:8080)
+- 🎨 **Interface Frontend** : [http://localhost:3000](http://localhost:3000)
 - 📖 **Documentation Swagger** : [http://localhost:8080/swagger](http://localhost:8080/swagger)
 - 📄 **OpenAPI Spec** : [http://localhost:8080/swagger.yaml](http://localhost:8080/swagger.yaml)
 
-#### Arrêt
+#### 🔍 **Vérification du statut :**
 ```bash
-docker compose down
+# Voir les conteneurs en cours
+docker compose ps
+
+# Voir les logs
+docker compose logs
+
+# Logs d'un service spécifique
+docker compose logs java-app
+docker compose logs frontend
 ```
 
-### 💻 Installation locale
+#### 🛑 **Arrêt des services :**
+```bash
+# Arrêt simple
+docker compose down
 
-#### Prérequis
+# Arrêt avec suppression des volumes
+docker compose down -v
+
+# Arrêt avec suppression des images
+docker compose down --rmi all
+```
+
+#### ⚡ **Lancement backend uniquement :**
+```bash
+# Si vous voulez seulement l'API Java
+docker compose up java-app --build
+```
+
+### 💻 Installation locale (sans Docker)
+
+#### Backend Java
+**Prérequis :**
 - Java 21 ou supérieur
 - Git
 
-#### Étapes
+**Étapes :**
 ```bash
 # Cloner le repository
 git clone https://github.com/Sarobidy-R/Java-API-Exam.git
 cd Java-API-Exam
 
-# Compiler
-javac -d bin src/*.java
+# Compiler l'API Java
+javac -d API/bin API/src/*.java
 
-# Lancer
-java -cp bin App
+# Lancer l'API
+java -cp API/bin App
+```
+
+#### Frontend React
+**Prérequis :**
+- Node.js 18+ et npm
+
+**Étapes :**
+```bash
+# Dans un nouveau terminal, naviguer vers le frontend
+cd frontend
+
+# Installer les dépendances
+npm install
+
+# Lancer en mode développement
+npm run dev
+```
+
+#### 🎯 **Accès en local :**
+- 🚀 **API Backend** : [http://localhost:8080](http://localhost:8080)
+- 🎨 **Interface Frontend** : [http://localhost:5173](http://localhost:5173)
+- 📖 **Documentation Swagger** : [http://localhost:8080/swagger](http://localhost:8080/swagger)
+
+> 💡 **Note :** Le frontend détecte automatiquement l'API locale et s'y connecte.
+
+## 🐳 Architecture Docker
+
+### 📁 Structure des conteneurs
+
+Le projet utilise une approche **multi-conteneurs** avec Docker Compose :
+
+```
+📦 Java-API-Exam
+├── 🐳 api.Dockerfile        # Conteneur Backend Java
+├── 🐳 frontend.Dockerfile   # Conteneur Frontend React  
+├── 🐳 docker-compose.yml    # Orchestration des services
+├── 📁 API/                  # Code source Backend
+│   ├── src/                 # Sources Java
+│   └── ...
+└── 📁 frontend/             # Code source Frontend
+    ├── src/                 # Sources React/TypeScript
+    └── ...
+```
+
+### ⚙️ Services Docker
+
+| Service | Port | Description | Dockerfile |
+|---------|------|-------------|------------|
+| `java-app` | 8080 | API REST Java | `api.Dockerfile` |
+| `frontend` | 3000 | Interface React | `frontend.Dockerfile` |
+
+### 🔗 Communication inter-conteneurs
+
+- **Frontend** → **Backend** : Via réseau Docker `app-network`
+- **Configuration automatique** : Le frontend détecte l'environnement
+- **Variable d'environnement** : `VITE_API_URL=http://localhost:8080`
+
+### 🛠️ Commandes Docker utiles
+
+```bash
+# Rebuild complet
+docker compose build --no-cache
+
+# Logs en temps réel
+docker compose logs -f
+
+# Restart d'un service
+docker compose restart frontend
+
+# Accès au conteneur
+docker compose exec java-app sh
+docker compose exec frontend sh
+
+# Nettoyage complet
+docker compose down -v --rmi all
+docker system prune -af
 ```
 
 ## 🎨 Frontend (Interface Web)
@@ -196,7 +300,16 @@ frontend/src/
 
 ### 🖱️ Via l'interface web (Frontend)
 
+**En ligne :**
 1. **Accéder au frontend** : [https://java-api-front.netlify.app](https://java-api-front.netlify.app)
+
+**En local avec Docker :**
+1. **Accéder au frontend** : [http://localhost:3000](http://localhost:3000)
+
+**En local sans Docker :**
+1. **Accéder au frontend** : [http://localhost:5173](http://localhost:5173)
+
+**Utilisation :**
 2. **Créer un ticket** : Cliquer sur "Nouveau Ticket"
 3. **Voir la file d'attente** : Les tickets s'affichent automatiquement
 4. **Appeler un ticket** : Cliquer sur "Appeler" sur un ticket
@@ -241,20 +354,49 @@ curl http://localhost:8080/api/tickets
 
 ## 🛠️ Commandes disponibles
 
-### Backend (Java)
+### 🐳 Docker (Recommandé)
 ```bash
-# Compilation
-javac -d bin src/*.java
+# Lancement complet (Backend + Frontend)
+docker compose up --build
 
-# Lancement
-java -cp bin App
+# Lancement en arrière-plan
+docker compose up -d --build
 
-# Avec Docker
-docker-compose up
+# Backend uniquement
+docker compose up java-app --build
+
+# Frontend uniquement  
+docker compose up frontend --build
+
+# Arrêt des services
+docker compose down
+
+# Rebuild complet
+docker compose build --no-cache
+
+# Logs en temps réel
+docker compose logs -f
 ```
 
-### Frontend (React/Vite)
+### Backend (Java) - Installation locale
 ```bash
+# Compilation (depuis la racine du projet)
+javac -d API/bin API/src/*.java
+
+# Lancement
+java -cp API/bin App
+
+# Ou depuis le dossier API
+cd API
+javac -d bin src/*.java
+java -cp bin App
+```
+
+### Frontend (React/Vite) - Installation locale
+```bash
+# Depuis le dossier frontend
+cd frontend
+
 # Installation des dépendances
 npm install
 
