@@ -57,7 +57,7 @@ services:
       - "traefik.http.routers.java-api-front.entrypoints=websecure"
       - "traefik.http.routers.java-api-front.tls=true"
       - "traefik.http.routers.java-api-front.tls.certresolver=myresolver"
-      - "traefik.http.services.java-api-front.loadbalancer.server.port=5173"
+      - "traefik.http.services.java-api-front.loadbalancer.server.port=3000"
       - "traefik.http.routers.java-api-front-http.rule=Host(`java-api-front.rasendra.app`)"
       - "traefik.http.routers.java-api-front-http.entrypoints=web"
       - "traefik.http.routers.java-api-front-http.middlewares=redirect-to-https"
