@@ -81,7 +81,7 @@ jobs:
           docker pull $IMAGE_FRONTEND_TAG
           
           # Start backend container
-          BACKEND_CONTAINER_ID=$(docker run -d --rm -p 8080:8080 $IMAGE_BACKEND_TAG)
+          BACKEND_CONTAINER_ID=$(docker run -d --rm -p 8008:8008 $IMAGE_BACKEND_TAG)
           echo "Backend container started: $BACKEND_CONTAINER_ID"
           
           # Start frontend container
@@ -91,7 +91,7 @@ jobs:
       - name: Test API endpoint
         run: |
           sleep 10 # attendre que les serveurs démarrent
-          curl --fail http://localhost:8080 || (docker logs $(docker ps -q --filter "expose=8080") && exit 1)
+          curl --fail http://localhost:8008 || (docker logs $(docker ps -q --filter "expose=8008") && exit 1)
           
       - name: Test Frontend endpoint
         run: |
