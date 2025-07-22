@@ -6,7 +6,7 @@ services:
       dockerfile: api.Dockerfile
     container_name: java-api-exam
     ports:
-      - "8080:8080"
+      - "8008:8008"
     restart: unless-stopped
     networks:
       - app-network

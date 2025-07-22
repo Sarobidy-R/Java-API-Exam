@@ -5,7 +5,7 @@
  */
 
 const PRODUCTION_API_URL = 'https://java-api-exam-latest.onrender.com';
-const LOCAL_API_URL = 'http://localhost:8080';
+const LOCAL_API_URL = 'http://localhost:8008';
 
 /**
  * Détecte automatiquement l'environnement et retourne l'URL de l'API appropriée

@@ -25,7 +25,7 @@ services:
     image: ghcr.io/sarobidy-r/java-api-exam/backend:${TAG}
     container_name: java-api-exam
     ports:
-      - "8080:8080"
+      - "8008:8008"
     restart: unless-stopped
 
     labels:
@@ -34,7 +34,7 @@ services:
       - "traefik.http.routers.java-api.entrypoints=websecure"
       - "traefik.http.routers.java-api.tls=true"
       - "traefik.http.routers.java-api.tls.certresolver=myresolver"
-      - "traefik.http.services.java-api.loadbalancer.server.port=3000"
+      - "traefik.http.services.java-api.loadbalancer.server.port=8008"
       - "traefik.http.routers.java-api-http.rule=Host(`java-api.rasendra.app`)"
       - "traefik.http.routers.java-api-http.entrypoints=web"
       - "traefik.http.routers.java-api-http.middlewares=redirect-to-https"
