@@ -9,6 +9,8 @@ on:
 env:
   IMAGE_FRONTEND: ghcr.io/${{ github.repository }}/frontend
   IMAGE_BACKEND: ghcr.io/${{ github.repository }}/backend
+  REMOTE_PATH_PROJECT: ${{ vars.REMOTE_PROJECT_PATH }}
+  SERVER_USER: ${{ vars.SERVER_USER }}
 
 jobs:
   build:
@@ -99,3 +101,42 @@ jobs:
         if: always()
         run: |
           docker stop $(docker ps -q) || true
+    
+  deploy-to-server:
+    needs: test-with-docker
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-client gettext-base
+          
+      - name: Setup SSH and deploy
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.IP_SERVER }} >> ~/.ssh/known_hosts
+          
+          # Prepare docker-compose with correct tags
+          export TAG=${{ github.sha }}
+          envsubst '$TAG' < docker-compose.deploy.yml > docker-compose.deploy.rendered.yml
+          
+          # Copy docker-compose to server
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.deploy.rendered.yml ${{ vars.SERVER_USER }}@${{ secrets.IP_SERVER }}:${{ vars.REMOTE_PROJECT_PATH }}/docker-compose.yml
+          
+      - name: Deploy on server
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ vars.SERVER_USER }}@${{ secrets.IP_SERVER }} << 'EOF'
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u ${{ github.actor }} --password-stdin ghcr.io
+          cd ${{ vars.REMOTE_PROJECT_PATH }}
+          docker compose pull
+          docker compose up -d --remove-orphans
+          docker system prune -af
+          docker volume prune -f
+          EOF
