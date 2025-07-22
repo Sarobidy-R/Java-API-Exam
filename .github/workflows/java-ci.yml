@@ -6,83 +6,137 @@ on:
   pull_request:
     branches: ["main", "dev"]
 
+env:
+  IMAGE_FRONTEND: ghcr.io/${{ github.repository }}/frontend
+  IMAGE_BACKEND: ghcr.io/${{ github.repository }}/backend
+  REMOTE_PATH_PROJECT: ${{ vars.REMOTE_PROJECT_PATH }}
+  SERVER_USER: ${{ vars.SERVER_USER }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      BRANCH_NAME: ${{ github.ref_name }}
-      SHORT_SHA: ${{ github.sha }}
-      IMAGE_TAG: ${{ github.ref_name }}-${{ github.sha }}
-      IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ github.ref_name }}-${{ github.sha }}
-      IMAGE_NAME_LATEST: ghcr.io/${{ github.repository }}:latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: "temurin"
+          
       - name: Compile Java project
         run: |
           mkdir -p API/bin
           javac -d API/bin API/src/*.java
-      - name: Build Docker image
-        run: |
-          BRANCH_NAME_SAFE=$(echo "${{ github.ref_name }}" | sed 's#[^a-zA-Z0-9._-]#-#g')
-          IMAGE_NAME_LC="ghcr.io/${{ github.repository }}:${BRANCH_NAME_SAFE}-${{ github.sha }}"
-          IMAGE_NAME_LC_LATEST="ghcr.io/${{ github.repository }}:latest"
-          IMAGE_NAME_LC=$(echo $IMAGE_NAME_LC | tr '[:upper:]' '[:lower:]')
-          IMAGE_NAME_LC_LATEST=$(echo $IMAGE_NAME_LC_LATEST | tr '[:upper:]' '[:lower:]')
-          docker build -f api.Dockerfile -t $IMAGE_NAME_LC .
-          docker tag $IMAGE_NAME_LC $IMAGE_NAME_LC_LATEST
+          
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Push Docker images (branch-sha + latest)
+          
+      - name: Build Docker images (Frontend + Backend)
         run: |
-          BRANCH_NAME_SAFE=$(echo "${{ github.ref_name }}" | sed 's#[^a-zA-Z0-9._-]#-#g')
-          IMAGE_NAME_LC="ghcr.io/${{ github.repository }}:${BRANCH_NAME_SAFE}-${{ github.sha }}"
-          IMAGE_NAME_LC_LATEST="ghcr.io/${{ github.repository }}:latest"
-          IMAGE_NAME_LC=$(echo $IMAGE_NAME_LC | tr '[:upper:]' '[:lower:]')
-          IMAGE_NAME_LC_LATEST=$(echo $IMAGE_NAME_LC_LATEST | tr '[:upper:]' '[:lower:]')
-          docker push $IMAGE_NAME_LC
-          docker push $IMAGE_NAME_LC_LATEST
+          # Build backend
+          IMAGE_BACKEND_TAG="${IMAGE_BACKEND}:${{ github.sha }}"
+          IMAGE_BACKEND_TAG=$(echo $IMAGE_BACKEND_TAG | tr '[:upper:]' '[:lower:]')
+          docker build -f api.Dockerfile -t $IMAGE_BACKEND_TAG .
+          
+          # Build frontend
+          IMAGE_FRONTEND_TAG="${IMAGE_FRONTEND}:${{ github.sha }}"
+          IMAGE_FRONTEND_TAG=$(echo $IMAGE_FRONTEND_TAG | tr '[:upper:]' '[:lower:]')
+          docker build -f frontend.Dockerfile -t $IMAGE_FRONTEND_TAG .
+          
+      - name: Push Docker images
+        run: |
+          IMAGE_BACKEND_TAG="${IMAGE_BACKEND}:${{ github.sha }}"
+          IMAGE_FRONTEND_TAG="${IMAGE_FRONTEND}:${{ github.sha }}"
+          IMAGE_BACKEND_TAG=$(echo $IMAGE_BACKEND_TAG | tr '[:upper:]' '[:lower:]')
+          IMAGE_FRONTEND_TAG=$(echo $IMAGE_FRONTEND_TAG | tr '[:upper:]' '[:lower:]')
+          docker push $IMAGE_BACKEND_TAG
+          docker push $IMAGE_FRONTEND_TAG
+
   test-with-docker:
     needs: build
     runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ github.ref_name }}-${{ github.sha }}
     steps:
-      - name: Pull image and run container
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Pull images and run containers
         run: |
-          IMAGE_NAME_LC=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
-          docker pull $IMAGE_NAME_LC
-          CONTAINER_ID=$(docker run -d --rm -p 8080:8080 $IMAGE_NAME_LC)
-          echo "Container started: $CONTAINER_ID"
+          IMAGE_BACKEND_TAG="${IMAGE_BACKEND}:${{ github.sha }}"
+          IMAGE_FRONTEND_TAG="${IMAGE_FRONTEND}:${{ github.sha }}"
+          IMAGE_BACKEND_TAG=$(echo $IMAGE_BACKEND_TAG | tr '[:upper:]' '[:lower:]')
+          IMAGE_FRONTEND_TAG=$(echo $IMAGE_FRONTEND_TAG | tr '[:upper:]' '[:lower:]')
+          
+          # Pull images
+          docker pull $IMAGE_BACKEND_TAG
+          docker pull $IMAGE_FRONTEND_TAG
+          
+          # Start backend container
+          BACKEND_CONTAINER_ID=$(docker run -d --rm -p 8080:8080 $IMAGE_BACKEND_TAG)
+          echo "Backend container started: $BACKEND_CONTAINER_ID"
+          
+          # Start frontend container
+          FRONTEND_CONTAINER_ID=$(docker run -d --rm -p 3000:3000 $IMAGE_FRONTEND_TAG)
+          echo "Frontend container started: $FRONTEND_CONTAINER_ID"
+          
       - name: Test API endpoint
         run: |
-          sleep 5 # attendre que le serveur démarre
-          curl --fail http://localhost:8080 || (docker logs $(docker ps -q) && exit 1)
-      - name: Stop container
+          sleep 10 # attendre que les serveurs démarrent
+          curl --fail http://localhost:8080 || (docker logs $(docker ps -q --filter "expose=8080") && exit 1)
+          
+      - name: Test Frontend endpoint
+        run: |
+          curl --fail http://localhost:3000 || (docker logs $(docker ps -q --filter "expose=3000") && exit 1)
+          
+      - name: Stop containers
         if: always()
         run: |
-          docker stop $(docker ps -q)
-
-  render-deploy:
+          docker stop $(docker ps -q) || true
+    
+  deploy-to-server:
     needs: test-with-docker
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - name: Trigger Render deployment
-        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' ) && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true))
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install dependencies
         run: |
-          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
-            echo "Triggering Render deployment..."
-            curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
-            echo "Render deployment triggered successfully!"
-          else
-            echo "RENDER_DEPLOY_HOOK secret not found - skipping deployment trigger"
-          fi
+          sudo apt-get update
+          sudo apt-get install -y openssh-client gettext-base
+          
+      - name: Setup SSH and deploy
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.IP_SERVER }} >> ~/.ssh/known_hosts
+          
+          # Prepare docker-compose with correct tags
+          export TAG=${{ github.sha }}
+          envsubst '$TAG' < docker-compose.deploy.yml > docker-compose.deploy.rendered.yml
+          
+          # Copy docker-compose to server
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.deploy.rendered.yml ${{ vars.SERVER_USER }}@${{ secrets.IP_SERVER }}:${{ vars.REMOTE_PROJECT_PATH }}/docker-compose.yml
+          
+      - name: Deploy on server
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ vars.SERVER_USER }}@${{ secrets.IP_SERVER }} << 'EOF'
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u ${{ github.actor }} --password-stdin ghcr.io
+          cd ${{ vars.REMOTE_PROJECT_PATH }}
+          docker compose pull
+          docker compose up -d --remove-orphans
+          docker system prune -af
+          docker volume prune -f
+          EOF

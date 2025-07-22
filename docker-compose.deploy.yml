@@ -1,0 +1,28 @@
+services:
+  # Backend API Java
+  java-app:
+    image: ghcr.io/sarobidy-r/java-api-exam/backend:${TAG}
+    container_name: java-api-exam
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Frontend React
+  frontend:
+    image: ghcr.io/sarobidy-r/java-api-exam/frontend:${TAG}
+    container_name: java-api-frontend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    depends_on:
+      - java-app
+
+networks:
+  app-network:
+    driver: bridge
