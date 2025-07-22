@@ -4,7 +4,7 @@
  * - En production (Netlify) : utilise l'API Render
  */
 
-const PRODUCTION_API_URL = 'https://java-api-exam-latest.onrender.com';
+const PRODUCTION_API_URL = 'https://java-api.rasendra.app';
 const LOCAL_API_URL = 'http://localhost:8008';
 
 /**
