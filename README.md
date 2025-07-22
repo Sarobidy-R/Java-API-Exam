@@ -2,6 +2,7 @@
 
 [![Java CI](https://github.com/Sarobidy-R/Java-API-Exam/actions/workflows/java-ci.yml/badge.svg)](https://github.com/Sarobidy-R/Java-API-Exam/actions/workflows/java-ci.yml)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com/)
+[![Traefik](https://img.shields.io/badge/Traefik-Load%20Balancer-24a1c1?logo=traefik)](https://traefik.io/)
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=java)](https://www.oracle.com/java/)
 [![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -36,11 +37,11 @@ Ce projet est un **système complet de gestion de tickets** comprenant une API R
 
 ## 🌐 Démo en ligne
 
-🚀 **API Backend :** [https://java-api-exam-latest.onrender.com](https://java-api-exam-latest.onrender.com)
+🚀 **API Backend :** [https://java-api.rasendra.app/](https://java-api.rasendra.app/)
 
-🎨 **Interface Frontend :** [https://java-api-front.netlify.app](https://java-api-front.netlify.app)
+🎨 **Interface Frontend :** [https://java-api-front.rasendra.app](https://java-api-front.rasendra.app)
 
-📖 **Documentation interactive :** [https://java-api-exam-latest.onrender.com/swagger](https://java-api-exam-latest.onrender.com/swagger)
+📖 **Documentation interactive :** [https://java-api.rasendra.app/swagger](https://java-api.rasendra.app/swagger)
 
 ## 🛠️ Technologies utilisées
 
@@ -49,7 +50,9 @@ Ce projet est un **système complet de gestion de tickets** comprenant une API R
 - **🌐 HttpServer** - Serveur HTTP intégré
 - **🐳 Docker** - Conteneurisation
 - **📖 OpenAPI/Swagger** - Documentation API
-- **☁️ Render** - Déploiement cloud
+- **☁️ DigitalOcean** - Serveur cloud Ubuntu
+- **🔀 Traefik** - Load balancer et reverse proxy
+- **🌍 Name.com** - Gestion de domaine
 
 ### Frontend
 - **⚛️ React 18** - Framework UI moderne
@@ -57,7 +60,8 @@ Ce projet est un **système complet de gestion de tickets** comprenant une API R
 - **⚡ Vite** - Build tool rapide
 - **🎨 Tailwind CSS** - Framework CSS
 - **🔗 Axios** - Client HTTP
-- **🌐 Netlify** - Déploiement frontend
+- **☁️ DigitalOcean** - Serveur cloud Ubuntu
+- **🔀 Traefik** - Load balancer et reverse proxy
 
 ### DevOps
 - **⚙️ GitHub Actions** - CI/CD
@@ -85,10 +89,10 @@ docker compose up --build -d
 ```
 
 #### 🎯 **Services disponibles :**
-- 🚀 **API Backend** : [http://localhost:8080](http://localhost:8080)
+- 🚀 **API Backend** : [http://localhost:8008](http://localhost:8008)
 - 🎨 **Interface Frontend** : [http://localhost:3000](http://localhost:3000)
-- 📖 **Documentation Swagger** : [http://localhost:8080/swagger](http://localhost:8080/swagger)
-- 📄 **OpenAPI Spec** : [http://localhost:8080/swagger.yaml](http://localhost:8080/swagger.yaml)
+- 📖 **Documentation Swagger** : [http://localhost:8008/swagger](http://localhost:8008/swagger)
+- 📄 **OpenAPI Spec** : [http://localhost:8008/swagger.yaml](http://localhost:8008/swagger.yaml)
 
 #### 🔍 **Vérification du statut :**
 ```bash
@@ -158,9 +162,9 @@ npm run dev
 ```
 
 #### 🎯 **Accès en local :**
-- 🚀 **API Backend** : [http://localhost:8080](http://localhost:8080)
+- 🚀 **API Backend** : [http://localhost:8008](http://localhost:8008)
 - 🎨 **Interface Frontend** : [http://localhost:5173](http://localhost:5173)
-- 📖 **Documentation Swagger** : [http://localhost:8080/swagger](http://localhost:8080/swagger)
+- 📖 **Documentation Swagger** : [http://localhost:8008/swagger](http://localhost:8008/swagger)
 
 > 💡 **Note :** Le frontend détecte automatiquement l'API locale et s'y connecte.
 
@@ -187,14 +191,14 @@ Le projet utilise une approche **multi-conteneurs** avec Docker Compose :
 
 | Service | Port | Description | Dockerfile |
 |---------|------|-------------|------------|
-| `java-app` | 8080 | API REST Java | `api.Dockerfile` |
+| `java-app` | 8008 | API REST Java | `api.Dockerfile` |
 | `frontend` | 3000 | Interface React | `frontend.Dockerfile` |
 
 ### 🔗 Communication inter-conteneurs
 
 - **Frontend** → **Backend** : Via réseau Docker `app-network`
 - **Configuration automatique** : Le frontend détecte l'environnement
-- **Variable d'environnement** : `VITE_API_URL=http://localhost:8080`
+- **Variable d'environnement** : `VITE_API_URL=http://localhost:8008`
 
 ### 🛠️ Commandes Docker utiles
 
@@ -220,7 +224,7 @@ docker system prune -af
 ## 🎨 Frontend (Interface Web)
 
 ### 🎯 **Démo en ligne**
-**👉 [Testez l'interface maintenant](https://java-api-front.netlify.app) 👈**
+**👉 [Testez l'interface maintenant](https://java-api-front.rasendra.app) 👈**
 
 *Interface prête à l'emploi avec détection automatique d'environnement*
 
@@ -228,8 +232,8 @@ docker system prune -af
 
 Le frontend **détecte automatiquement** l'environnement et configure l'API appropriée :
 
-- **🏠 Développement local** : `http://localhost:8080` (si disponible)
-- **🌐 Production** : `https://java-api-exam-latest.onrender.com`
+- **🏠 Développement local** : `http://localhost:8008` (si disponible)
+- **🌐 Production** : `https://java-api.rasendra.app/`
 - **🔄 Fallback intelligent** : Bascule vers production si API locale indisponible
 
 ### 🚀 Lancement du frontend
@@ -257,10 +261,10 @@ Pour forcer une URL d'API spécifique, modifiez `frontend/.env` :
 
 ```bash
 # Forcer l'API locale
-VITE_API_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8008
 
 # Forcer l'API de production  
-VITE_API_URL=https://java-api-exam-latest.onrender.com
+VITE_API_URL=https://java-api.rasendra.app/
 ```
 
 ### 🎨 Fonctionnalités de l'interface
@@ -301,7 +305,7 @@ frontend/src/
 ### 🖱️ Via l'interface web (Frontend)
 
 **En ligne :**
-1. **Accéder au frontend** : [https://java-api-front.netlify.app](https://java-api-front.netlify.app)
+1. **Accéder au frontend** : [https://java-api-front.rasendra.app](https://java-api-front.rasendra.app)
 
 **En local avec Docker :**
 1. **Accéder au frontend** : [http://localhost:3000](http://localhost:3000)
@@ -319,7 +323,7 @@ frontend/src/
 
 #### Créer un ticket
 ```bash
-curl -X POST http://localhost:8080/api/tickets
+curl -X POST http://localhost:8008/api/tickets
 ```
 
 **Réponse :**
@@ -335,14 +339,14 @@ curl -X POST http://localhost:8080/api/tickets
 
 #### Appeler un ticket
 ```bash
-curl -X POST http://localhost:8080/api/tickets/call \
+curl -X POST http://localhost:8008/api/tickets/call \
   -H "Content-Type: text/plain" \
   -d "1"
 ```
 
 #### Voir les tickets en attente
 ```bash
-curl http://localhost:8080/api/tickets
+curl http://localhost:8008/api/tickets
 ```
 
 ### 🔄 Flux complet
@@ -469,26 +473,50 @@ src/
 
 ## 🚀 Déploiement
 
-### 🖥️ Backend (Render)
-- **Service Type** : Web Service avec Docker
-- **Repository** : Déploiement automatique depuis GitHub
-- **URL de production** : https://java-api-exam-latest.onrender.com
-- **Health Check** : `/health` endpoint
+### 🌐 Infrastructure Cloud (DigitalOcean + Name.com)
 
-### 🌐 Frontend (Netlify)
-- **Service Type** : Static Site
-- **Build Command** : `cd frontend && npm ci && npm run build`
-- **Publish Directory** : `frontend/dist`
-- **URL de production** : https://java-api-front.netlify.app
-- **Configuration automatique** : Détection d'environnement intégrée
+Le projet est déployé sur une infrastructure moderne avec :
+
+- **☁️ Serveur DigitalOcean** : Droplet Ubuntu 22.04
+- **🌍 Domaine personnalisé** : Géré via Name.com
+- **🔀 Traefik** : Load balancer et reverse proxy automatique
+- **🐳 Docker** : Conteneurisation complète
+- **🔒 SSL/TLS** : Certificats Let's Encrypt automatiques
+- **📊 Monitoring** : Health checks intégrés
+
+### �️ Architecture de déploiement
+
+```
+🌍 Internet
+    ↓
+🔀 Traefik (Load Balancer + SSL)
+    ↓
+🐳 Docker Network
+    ├── 🚀 Backend API (java-api.rasendra.app)
+    └── 🎨 Frontend React (java-api-front.rasendra.app)
+```
+
+### 🖥️ Configuration serveur
+
+**Serveur Ubuntu DigitalOcean :**
+- **OS** : Ubuntu 22.04 LTS
+- **Services** : Docker + Docker Compose + Traefik
+- **Domaine** : `rasendra.app` (Name.com)
+- **SSL** : Let's Encrypt automatique via Traefik
+
+**URLs de production :**
+- **🚀 API Backend** : https://java-api.rasendra.app/
+- **🎨 Frontend** : https://java-api-front.rasendra.app
+- **📖 Documentation** : https://java-api.rasendra.app/swagger
 
 ## 🔄 CI/CD
 
 Le projet utilise GitHub Actions pour :
 - ✅ **Build automatique** à chaque push
-- 🧪 **Tests** de compilation
-- 🐳 **Build Docker** et push vers le registry
-- 🚀 **Déploiement automatique** sur Render
+- 🧪 **Tests** de compilation et Docker
+- 🐳 **Build & Push** des images vers GitHub Container Registry
+- 🚀 **Déploiement automatique** sur serveur DigitalOcean via SSH
+- 🔄 **Mise à jour** des services avec Traefik
 
 ## 📝 Licence
 
@@ -502,4 +530,4 @@ Ce projet est sous licence MIT.
 
 ---
 
-🎯 **Projet full-stack moderne : Backend Java + Frontend React déployé sur Render + Netlify**
+🎯 **Projet full-stack moderne : Backend Java + Frontend React déployé sur DigitalOcean avec Traefik**
