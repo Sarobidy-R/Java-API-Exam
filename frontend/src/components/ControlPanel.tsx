@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, ArrowRight, ArrowLeft, Eye, RotateCcw } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Eye } from 'lucide-react';
 import { apiService } from '../services/apiService';
 
 interface ControlPanelProps {
@@ -67,28 +67,27 @@ export function ControlPanel({ onRefresh, loading = false }: ControlPanelProps) 
   const isLoading = (action: string) => actionLoading === action;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="card-base p-6">
       <h2 className="text-xl font-semibold text-gray-800 mb-6">Panneau de contrôle</h2>
-
 
       {/* Actions principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <button
           onClick={handleCreateTicket}
           disabled={isLoading('Création de ticket') || loading}
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="btn-primary"
         >
-          <Plus size={20} />
-          {isLoading('Création de ticket') ? 'Création...' : 'Créer un ticket'}
+          {isLoading('Création de ticket') ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
+          Créer un ticket
         </button>
-
+        
         <button
-          onClick={onRefresh}
-          disabled={loading}
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          onClick={handleEnqueueTicket}
+          disabled={isLoading('Ajout à la file') || loading}
+          className="btn-success"
         >
-          <RotateCcw size={20} className={loading ? 'animate-spin' : ''} />
-          {loading ? 'Actualisation...' : 'Actualiser'}
+          {isLoading('Ajout à la file') ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
+          Ajouter à la file
         </button>
       </div>
 
@@ -128,7 +127,7 @@ export function ControlPanel({ onRefresh, loading = false }: ControlPanelProps) 
 
       {/* Messages */}
       {message && (
-        <div className={`mt-4 p-3 rounded-md ${
+        <div className={`mt-4 p-3 rounded-md animate-fade-in ${
           message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-300' :
           message.type === 'error' ? 'bg-red-100 text-red-700 border border-red-300' :
           'bg-blue-100 text-blue-700 border border-blue-300'

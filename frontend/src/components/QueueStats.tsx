@@ -18,7 +18,7 @@ interface StatCardProps {
 // Composant optimisé avec React.memo
 const StatCard = React.memo<StatCardProps>(({ title, value, icon: IconComponent, className = 'text-blue-600', bgClassName = 'bg-blue-50 border-blue-200' }) => {
   return (
-    <div className={`p-4 rounded-lg border-2 ${bgClassName} transition-all duration-200 hover:shadow-md`}>
+    <div className={`card-interactive p-4 ${bgClassName}`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
@@ -35,14 +35,14 @@ StatCard.displayName = 'StatCard';
 export const QueueStatsCard = React.memo<QueueStatsProps>(({ stats, loading = false }) => {
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="card-base p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <BarChart3 size={24} className="text-gray-600" />
           Statistiques de la file d'attente
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="p-4 rounded-lg border-2 bg-gray-50 border-gray-200 animate-pulse">
+            <div key={i} className="card-base p-4 animate-pulse">
               <div className="h-4 bg-gray-300 rounded mb-2"></div>
               <div className="h-8 bg-gray-300 rounded"></div>
             </div>
@@ -54,7 +54,7 @@ export const QueueStatsCard = React.memo<QueueStatsProps>(({ stats, loading = fa
 
   if (!stats) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="card-base p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <BarChart3 size={24} className="text-gray-600" />
           Statistiques de la file d'attente
@@ -67,7 +67,7 @@ export const QueueStatsCard = React.memo<QueueStatsProps>(({ stats, loading = fa
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="card-base p-6">
       <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
         <BarChart3 size={24} className="text-gray-600" />
         Statistiques de la file d'attente

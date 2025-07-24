@@ -68,16 +68,16 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="card-base shadow-soft border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-600 rounded-lg">
+              <div className="p-2 gradient-primary rounded-lg">
                 <Server className="h-6 w-6 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-2xl font-bold text-gray-900">
+                  <h1 className="text-2xl font-bold text-gradient">
                     🎫 Java API Exam - Frontend
                   </h1>
                   <ApiStatus />
@@ -104,7 +104,7 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Messages d'erreur globaux */}
         {hasError && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg">
+          <div className="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg animate-slide-up">
             <h3 className="font-medium mb-2">Erreurs détectées :</h3>
             <ul className="text-sm space-y-1">
               {waitingTickets.error && <li>• Tickets en attente: {waitingTickets.error}</li>}
@@ -154,7 +154,7 @@ function App() {
 
         {/* Indicateur de chargement global */}
         {(isLoading || actionLoading) && (
-          <div className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+          <div className="fixed bottom-4 right-4 gradient-primary text-white px-4 py-2 rounded-lg shadow-soft flex items-center gap-2 animate-slide-up">
             <RefreshCw size={16} className="animate-spin" />
             Chargement...
           </div>

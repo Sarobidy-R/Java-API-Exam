@@ -1,0 +1,85 @@
+/* Styles spécifiques aux layouts et navigation */
+
+@layer components {
+  .app-header {
+    @apply bg-white shadow-sm border-b;
+  }
+  
+  .app-header-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4;
+  }
+  
+  .app-header-content {
+    @apply flex flex-col lg:flex-row lg:items-center justify-between gap-4;
+  }
+  
+  .app-logo-section {
+    @apply flex items-center gap-3;
+  }
+  
+  .app-logo {
+    @apply p-2 bg-blue-600 rounded-lg;
+  }
+  
+  .app-logo-icon {
+    @apply h-6 w-6 text-white;
+  }
+  
+  .app-title-section {
+  }
+  
+  .app-title-main {
+    @apply flex items-center gap-3 mb-1;
+  }
+  
+  .app-title {
+    @apply text-2xl font-bold text-gray-900;
+  }
+  
+  .app-subtitle {
+    @apply text-sm text-gray-600;
+  }
+  
+  .app-controls {
+    @apply flex flex-col lg:flex-row items-stretch lg:items-center gap-3;
+  }
+  
+  .main-content {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  }
+  
+  .main-grid {
+    @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
+  }
+  
+  .sidebar-left {
+    @apply space-y-6;
+  }
+  
+  .content-center {
+  }
+  
+  .sidebar-right {
+    @apply space-y-6;
+  }
+  
+  .error-banner {
+    @apply mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg;
+  }
+  
+  .error-banner-title {
+    @apply font-medium mb-2;
+  }
+  
+  .error-banner-list {
+    @apply text-sm space-y-1;
+  }
+  
+  .loading-indicator {
+    @apply fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2;
+  }
+  
+  .loading-spinner-white {
+    @apply w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
+  }
+}
