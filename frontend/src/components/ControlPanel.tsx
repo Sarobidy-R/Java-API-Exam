@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, ArrowRight, ArrowLeft, Eye, RotateCcw, Settings } from 'lucide-react';
+import { Plus, ArrowRight, ArrowLeft, Eye, RotateCcw } from 'lucide-react';
 import { apiService } from '../services/apiService';
 
 interface ControlPanelProps {
@@ -10,9 +10,6 @@ interface ControlPanelProps {
 export function ControlPanel({ onRefresh, loading = false }: ControlPanelProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const [apiUrl, setApiUrl] = useState(
-    import.meta.env.VITE_API_URL || 'https://java-api-front.rasendra.app/'
-  );
 
   const showMessage = (text: string, type: 'success' | 'error' | 'info') => {
     setMessage({ text, type });
@@ -67,39 +64,12 @@ export function ControlPanel({ onRefresh, loading = false }: ControlPanelProps) 
     }
   };
 
-  const handleUpdateApiUrl = () => {
-    apiService.updateBaseUrl(apiUrl);
-    showMessage('URL API mise à jour', 'info');
-  };
-
   const isLoading = (action: string) => actionLoading === action;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-xl font-semibold text-gray-800 mb-6">Panneau de contrôle</h2>
-      
-      {/* Configuration API */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-          <Settings size={16} />
-          Configuration API
-        </h3>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={apiUrl}
-            onChange={(e) => setApiUrl(e.target.value)}
-            placeholder="URL de l'API"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            onClick={handleUpdateApiUrl}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-          >
-            Mettre à jour
-          </button>
-        </div>
-      </div>
+
 
       {/* Actions principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
