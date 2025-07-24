@@ -16,9 +16,9 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
 servers:
-  - url: http://localhost:8008
+  - url: http://localhost:8080
     description: 🛠️ Serveur de développement (local)
-  - url: https://java-api.rasendra.app/
+  - url: https://java-api-exam-latest.onrender.com/
     description: 🌐 Serveur de production
 tags:
   - name: 🏠 Général

@@ -34,7 +34,7 @@ export const RenderApiNotification = React.memo(() => {
             Le premier chargement peut prendre 10-30 secondes (cold start).
           </p>
           <p className="mt-2 text-xs text-blue-600">
-            URL: https://java-api-front.rasendra.app/
+            URL: https://java-api-exam-latest.onrender.com
           </p>
         </div>
         <button

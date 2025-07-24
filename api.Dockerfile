@@ -23,8 +23,8 @@ COPY --from=build /src/*.class /app/
 # Copie du fichier swagger.yaml pour la documentation
 COPY ./API/swagger.yaml /app/
 
-# Expose le port 8008 pour l'application Java
-EXPOSE 8008
+# Expose le port 8080 pour l'application Java
+EXPOSE 8080
 
 # Run de l'application Java
 CMD ["java", "App"]
