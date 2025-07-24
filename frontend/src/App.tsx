@@ -3,7 +3,6 @@ import { RefreshCw, Server } from 'lucide-react';
 import { TicketList } from './components/OptimizedTicketCard';
 import { QueueStatsCard } from './components/QueueStats';
 import { ControlPanel } from './components/ControlPanel';
-import { SettingsPanel } from './components/SettingsPanel';
 import { ApiStatus } from './components/ApiStatus';
 import { RenderApiNotification } from './components/RenderApiNotification';
 import { ApiEnvironmentDisplay } from './components/ApiEnvironmentDisplay';
@@ -45,8 +44,8 @@ function App() {
     setLastRefresh(new Date());
   }, [waitingTickets, calledTickets, servedTickets, queueStats]);
 
-  // Auto-refresh optimisé pour éviter les clignotements (intervalle initial 10 secondes)
-  const { isAutoRefreshEnabled, toggleAutoRefresh, interval, setInterval } = useAutoRefresh(refreshFunctions, 10000);
+  // Auto-refresh automatique en arrière-plan (10 secondes)
+  useAutoRefresh(refreshFunctions, 10000);
 
   // Gestion des actions sur les tickets
   const handleCallTicket = async (ticketNumber: number) => {
@@ -92,24 +91,6 @@ function App() {
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
               {/* Configuration de l'API */}
               <ApiEnvironmentDisplay className="lg:min-w-[280px]" />
-              
-              <div className="flex items-center gap-3">
-                <SettingsPanel
-                  isAutoRefreshEnabled={isAutoRefreshEnabled}
-                  onToggleAutoRefresh={toggleAutoRefresh}
-                  refreshInterval={interval}
-                  onIntervalChange={setInterval}
-                />
-                
-                <button
-                  onClick={refreshAll}
-                  disabled={isLoading}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-                  Actualiser
-                </button>
-              </div>
             </div>
           </div>
           
