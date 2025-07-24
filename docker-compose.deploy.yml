@@ -1,0 +1,72 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.myresolver.acme.httpchallenge=true
+      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.myresolver.acme.email=rasendraminosarobidy@gmail.com
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - java-network
+  # Backend API Java
+  java-app:
+    image: ghcr.io/sarobidy-r/java-api-exam/backend:${TAG}
+    container_name: java-api-exam
+    ports:
+      - "8008:8008"
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.java-api.rule=Host(`java-api.rasendra.app`)"
+      - "traefik.http.routers.java-api.entrypoints=websecure"
+      - "traefik.http.routers.java-api.tls=true"
+      - "traefik.http.routers.java-api.tls.certresolver=myresolver"
+      - "traefik.http.services.java-api.loadbalancer.server.port=8008"
+      - "traefik.http.routers.java-api-http.rule=Host(`java-api.rasendra.app`)"
+      - "traefik.http.routers.java-api-http.entrypoints=web"
+      - "traefik.http.routers.java-api-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    networks:
+      - java-network
+
+  # Frontend React
+  frontend:
+    image: ghcr.io/sarobidy-r/java-api-exam/frontend:${TAG}
+    container_name: java-api-frontend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - java-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.java-api-front.rule=Host(`java-api-front.rasendra.app`)"
+      - "traefik.http.routers.java-api-front.entrypoints=websecure"
+      - "traefik.http.routers.java-api-front.tls=true"
+      - "traefik.http.routers.java-api-front.tls.certresolver=myresolver"
+      - "traefik.http.services.java-api-front.loadbalancer.server.port=3000"
+      - "traefik.http.routers.java-api-front-http.rule=Host(`java-api-front.rasendra.app`)"
+      - "traefik.http.routers.java-api-front-http.entrypoints=web"
+      - "traefik.http.routers.java-api-front-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    environment:
+      - VITE_API_URL=https://java-api.rasendra.app
+    depends_on:
+      - java-app
+
+networks:
+  java-network:
+    driver: bridge

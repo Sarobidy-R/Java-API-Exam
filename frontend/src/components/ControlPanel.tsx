@@ -11,7 +11,7 @@ export function ControlPanel({ onRefresh, loading = false }: ControlPanelProps) 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [apiUrl, setApiUrl] = useState(
-    import.meta.env.VITE_API_URL || 'https://java-api-exam-latest.onrender.com'
+    import.meta.env.VITE_API_URL || 'https://java-api-front.rasendra.app/'
   );
 
   const showMessage = (text: string, type: 'success' | 'error' | 'info') => {

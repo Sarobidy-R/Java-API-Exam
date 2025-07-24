@@ -9,7 +9,7 @@ public class App {
     private static QueueHandler queueHandler = new QueueHandler(ticketService);
 
     public static void main(String[] args) throws IOException {
-        int port = 8080;
+        int port = 8008;
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
         // Endpoints
