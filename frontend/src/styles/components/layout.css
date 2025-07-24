@@ -1,85 +1,185 @@
 /* Styles spécifiques aux layouts et navigation */
 
-@layer components {
-  .app-header {
-    @apply bg-white shadow-sm border-b;
-  }
-  
+.app-header {
+  background-color: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.app-header-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
   .app-header-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
-  
+}
+
+@media (min-width: 1024px) {
+  .app-header-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.app-header-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
   .app-header-content {
-    @apply flex flex-col lg:flex-row lg:items-center justify-between gap-4;
+    flex-direction: row;
+    align-items: center;
   }
-  
-  .app-logo-section {
-    @apply flex items-center gap-3;
-  }
-  
-  .app-logo {
-    @apply p-2 bg-blue-600 rounded-lg;
-  }
-  
-  .app-logo-icon {
-    @apply h-6 w-6 text-white;
-  }
-  
-  .app-title-section {
-  }
-  
-  .app-title-main {
-    @apply flex items-center gap-3 mb-1;
-  }
-  
-  .app-title {
-    @apply text-2xl font-bold text-gray-900;
-  }
-  
-  .app-subtitle {
-    @apply text-sm text-gray-600;
-  }
-  
+}
+
+.app-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-logo {
+  padding: 0.5rem;
+  background-color: #2563eb;
+  border-radius: 0.5rem;
+}
+
+.app-logo-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  color: white;
+}
+
+.app-title-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+}
+
+.app-subtitle {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.app-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
   .app-controls {
-    @apply flex flex-col lg:flex-row items-stretch lg:items-center gap-3;
+    flex-direction: row;
+    align-items: center;
   }
-  
+}
+
+.main-content {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 640px) {
   .main-content {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
-  
-  .main-grid {
-    @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
-  
-  .sidebar-left {
-    @apply space-y-6;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .content-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
-  
-  .content-center {
-  }
-  
-  .sidebar-right {
-    @apply space-y-6;
-  }
-  
-  .error-banner {
-    @apply mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg;
-  }
-  
-  .error-banner-title {
-    @apply font-medium mb-2;
-  }
-  
-  .error-banner-list {
-    @apply text-sm space-y-1;
-  }
-  
-  .loading-indicator {
-    @apply fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2;
-  }
-  
-  .loading-spinner-white {
-    @apply w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
+}
+
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.content-center {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.error-banner {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  border-radius: 0.5rem;
+}
+
+.error-title {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.error-details {
+  font-size: 0.875rem;
+}
+
+.error-details > * + * {
+  margin-top: 0.25rem;
+}
+
+.loading-indicator {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid white;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
