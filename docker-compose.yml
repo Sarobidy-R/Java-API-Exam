@@ -6,7 +6,7 @@ services:
       dockerfile: api.Dockerfile
     container_name: java-api-exam
     ports:
-      - "8080:8080"
+      - "8008:8008"
     restart: unless-stopped
     networks:
       - app-network
@@ -23,7 +23,7 @@ services:
     networks:
       - app-network
     environment:
-      - VITE_API_URL=http://localhost:8080
+      - VITE_API_URL=http://localhost:8008
     depends_on:
       - java-app
 
