@@ -13,24 +13,28 @@ const statusConfig: Record<TicketStatus, {
   icon: React.ComponentType<{ size?: number; className?: string }>;
   className: string;
   bgClassName: string;
+  badgeClass: string;
 }> = {
   WAITING: {
     label: 'En attente',
     icon: Clock,
     className: 'text-yellow-600',
     bgClassName: 'bg-yellow-50 border-yellow-200',
+    badgeClass: 'badge-waiting',
   },
   CALLED: {
     label: 'Appelé',
     icon: Phone,
     className: 'text-blue-600',
     bgClassName: 'bg-blue-50 border-blue-200',
+    badgeClass: 'badge-called',
   },
   SERVED: {
     label: 'Servi',
     icon: CheckCircle,
     className: 'text-green-600',
     bgClassName: 'bg-green-50 border-green-200',
+    badgeClass: 'badge-served',
   },
 };
 
@@ -50,7 +54,7 @@ export function TicketCard({ ticket, onCall, onServe, showActions = false }: Tic
   const IconComponent = config.icon;
 
   return (
-    <div className={`p-4 rounded-lg border-2 ${config.bgClassName} transition-all duration-200 hover:shadow-md`}>
+    <div className={`card-interactive p-4 ${config.bgClassName}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <IconComponent size={20} className={config.className} />
@@ -58,7 +62,7 @@ export function TicketCard({ ticket, onCall, onServe, showActions = false }: Tic
             Ticket #{ticket.ticketNumber}
           </span>
         </div>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.className} bg-white`}>
+        <span className={config.badgeClass}>
           {config.label}
         </span>
       </div>
@@ -84,7 +88,7 @@ export function TicketCard({ ticket, onCall, onServe, showActions = false }: Tic
           {ticket.status === 'WAITING' && onCall && (
             <button
               onClick={() => onCall(ticket.ticketNumber)}
-              className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+              className="btn-primary flex-1 text-sm"
             >
               📞 Appeler
             </button>
@@ -92,7 +96,7 @@ export function TicketCard({ ticket, onCall, onServe, showActions = false }: Tic
           {ticket.status === 'CALLED' && onServe && (
             <button
               onClick={() => onServe(ticket.ticketNumber)}
-              className="flex-1 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+              className="btn-success flex-1 text-sm"
             >
               ✅ Servir
             </button>

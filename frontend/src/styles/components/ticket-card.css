@@ -1,0 +1,166 @@
+/* Styles spécifiques aux TicketCard */
+
+.ticket-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid;
+  transition: all 0.3s;
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.ticket-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.ticket-card-waiting {
+  background-color: #fffbeb;
+  border-color: #fde68a;
+}
+
+.ticket-card-called {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.ticket-card-served {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.ticket-status-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.25rem;
+  height: 100%;
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+
+.ticket-status-waiting {
+  background-color: #d97706;
+}
+
+.ticket-status-called {
+  background-color: #2563eb;
+}
+
+.ticket-status-served {
+  background-color: #059669;
+}
+
+.ticket-icon-container {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.ticket-icon-waiting {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.ticket-icon-called {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.ticket-icon-served {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.ticket-number {
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+.ticket-status-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ticket-status-badge-waiting {
+  color: #d97706;
+  background-color: #fef3c7;
+}
+
+.ticket-status-badge-called {
+  color: #2563eb;
+  background-color: #dbeafe;
+}
+
+.ticket-status-badge-served {
+  color: #059669;
+  background-color: #d1fae5;
+}
+
+.ticket-timestamp {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.ticket-timestamp-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+.ticket-timestamp-dot-creation {
+  background-color: #9ca3af;
+}
+
+.ticket-timestamp-dot-called {
+  background-color: #60a5fa;
+}
+
+.ticket-timestamp-dot-served {
+  background-color: #34d399;
+}
+
+.ticket-action-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.ticket-action-btn:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.ticket-action-btn-call {
+  background: linear-gradient(to right, #2563eb, #1d4ed8);
+}
+
+.ticket-action-btn-call:hover {
+  background: linear-gradient(to right, #1d4ed8, #1e40af);
+}
+
+.ticket-action-btn-serve {
+  background: linear-gradient(to right, #059669, #047857);
+}
+
+.ticket-action-btn-serve:hover {
+  background: linear-gradient(to right, #047857, #065f46);
+}
