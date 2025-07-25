@@ -1,28 +1,25 @@
-import { useState, useCallback, useMemo } from 'react';
-import { RefreshCw, Server, Clock, AlertCircle, Users, Phone, CheckCircle, TrendingUp } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
+import { RefreshCw, Server, AlertCircle, Users, Phone, CheckCircle, TrendingUp } from 'lucide-react';
 import { ControlPanel } from './components/ControlPanel';
 import { ApiStatus } from './components/ApiStatus';
-import { RenderApiNotification } from './components/RenderApiNotification';
-import { ApiEnvironmentDisplay } from './components/ApiEnvironmentDisplay';
-import { 
-  useWaitingTickets, 
-  useCalledTickets, 
-  useServedTickets, 
+import {
+  useWaitingTickets,
+  useCalledTickets,
+  useServedTickets,
   useQueueStats,
   useTicketActions,
-  useAutoRefresh 
+  useAutoRefresh
 } from './hooks/useApi';
 import { QueueStatsCard } from './components/QueueStats';
 
 function App() {
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  
+
   // Hooks pour les données
   const waitingTickets = useWaitingTickets();
   const calledTickets = useCalledTickets();
   const servedTickets = useServedTickets();
   const queueStats = useQueueStats();
-  
+
   // Hooks pour les actions
   const { callTicket, serveTicket, loading: actionLoading, error: actionError } = useTicketActions();
 
@@ -40,7 +37,6 @@ function App() {
     calledTickets.refetch();
     servedTickets.refetch();
     queueStats.refetch();
-    setLastRefresh(new Date());
   }, [waitingTickets, calledTickets, servedTickets, queueStats]);
 
   // Auto-refresh automatique en arrière-plan (10 secondes)
@@ -83,8 +79,8 @@ function App() {
 
   // Fonction pour obtenir une propriété de ticket en mode sécurisé
   const getTicketProperty = (ticket: any, property: string, fallback: any = null) => {
-    return ticket && typeof ticket === 'object' && ticket.hasOwnProperty(property) 
-      ? ticket[property] 
+    return ticket && typeof ticket === 'object' && ticket.hasOwnProperty(property)
+      ? ticket[property]
       : fallback;
   };
 
@@ -111,7 +107,7 @@ function App() {
             </div>
 
             {/* Status et contrôles - Réorganisé */}
-            <div className="flex items-center gap-3">       
+            <div className="flex items-center gap-3">
               {/* Status API */}
               <ApiStatus />
             </div>
@@ -206,7 +202,7 @@ function App() {
         {/* Layout principal en grille responsive */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Colonne 1: File d'Attente avec bouton Appeler */}
-          <div className="lg:col-span-1 space-y-4 animate-slide-up" style={{animationDelay: '0.1s'}}>
+          <div className="lg:col-span-1 space-y-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
             <div className="bg-white rounded-xl shadow-soft border border-secondary-100 p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -222,7 +218,7 @@ function App() {
                 </div>
                 <div className="w-3 h-3 bg-warning-400 rounded-full animate-pulse-soft"></div>
               </div>
-              
+
               <div className="max-h-96 overflow-y-auto space-y-2">
                 {waitingTickets.data?.length ? (
                   waitingTickets.data.map((ticket) => (
@@ -236,8 +232,8 @@ function App() {
                             <p className="font-medium text-warning-800">Ticket #{getTicketProperty(ticket, 'ticketNumber', '?')}</p>
                             <p className="text-xs text-warning-600">
                               {formatDate(
-                                getTicketProperty(ticket, 'createdAt') || 
-                                getTicketProperty(ticket, 'timestamp') || 
+                                getTicketProperty(ticket, 'createdAt') ||
+                                getTicketProperty(ticket, 'timestamp') ||
                                 getTicketProperty(ticket, 'created')
                               )}
                             </p>
@@ -264,7 +260,7 @@ function App() {
           </div>
 
           {/* Colonne 2: Tickets Appelés avec bouton Servir */}
-          <div className="lg:col-span-1 space-y-4 animate-slide-up" style={{animationDelay: '0.2s'}}>
+          <div className="lg:col-span-1 space-y-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <div className="bg-white rounded-xl shadow-soft border border-secondary-100 p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -280,7 +276,7 @@ function App() {
                 </div>
                 <div className="w-3 h-3 bg-primary-400 rounded-full animate-pulse-soft"></div>
               </div>
-              
+
               <div className="max-h-96 overflow-y-auto space-y-2">
                 {calledTickets.data?.length ? (
                   calledTickets.data.map((ticket) => (
@@ -294,8 +290,8 @@ function App() {
                             <p className="font-medium text-primary-800">Ticket #{getTicketProperty(ticket, 'ticketNumber', '?')}</p>
                             <p className="text-xs text-primary-600">
                               {formatDate(
-                                getTicketProperty(ticket, 'calledAt') || 
-                                getTicketProperty(ticket, 'createdAt') || 
+                                getTicketProperty(ticket, 'calledAt') ||
+                                getTicketProperty(ticket, 'createdAt') ||
                                 getTicketProperty(ticket, 'timestamp')
                               )}
                             </p>
@@ -322,7 +318,7 @@ function App() {
           </div>
 
           {/* Colonne 3: Tickets Servis (lecture seule) */}
-          <div className="lg:col-span-1 space-y-4 animate-slide-up" style={{animationDelay: '0.3s'}}>
+          <div className="lg:col-span-1 space-y-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <div className="bg-white rounded-xl shadow-soft border border-secondary-100 p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -338,7 +334,7 @@ function App() {
                 </div>
                 <div className="w-3 h-3 bg-success-400 rounded-full"></div>
               </div>
-              
+
               <div className="max-h-96 overflow-y-auto space-y-2">
                 {servedTickets.data?.length ? (
                   servedTickets.data.map((ticket) => (
@@ -352,9 +348,9 @@ function App() {
                             <p className="font-medium text-success-800">Ticket #{getTicketProperty(ticket, 'ticketNumber', '?')}</p>
                             <p className="text-xs text-success-600">
                               {formatDate(
-                                getTicketProperty(ticket, 'servedAt') || 
-                                getTicketProperty(ticket, 'calledAt') || 
-                                getTicketProperty(ticket, 'createdAt') || 
+                                getTicketProperty(ticket, 'servedAt') ||
+                                getTicketProperty(ticket, 'calledAt') ||
+                                getTicketProperty(ticket, 'createdAt') ||
                                 getTicketProperty(ticket, 'timestamp')
                               )}
                             </p>
@@ -378,7 +374,7 @@ function App() {
         </div>
 
         {/* Statistiques détaillées (optionnel, masqué sur petit écran) */}
-        <div className="hidden xl:block mt-6 animate-fade-in" style={{animationDelay: '0.4s'}}>
+        <div className="hidden xl:block mt-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <QueueStatsCard stats={queueStats.data} loading={queueStats.loading} />
         </div>
       </main>
@@ -394,9 +390,6 @@ function App() {
           </div>
         </div>
       )}
-
-      {/* Notification API Render */}
-      <RenderApiNotification />
     </div>
   );
 }
