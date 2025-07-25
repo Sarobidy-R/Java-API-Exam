@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, ArrowLeft, Eye } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
 import { apiService } from '../services/apiService';
 
 interface ControlPanelProps {
@@ -35,104 +35,54 @@ export function ControlPanel({ onRefresh, loading = false }: ControlPanelProps) 
     handleAction('Création de ticket', () => apiService.createTicket());
   };
 
-  const handleEnqueueTicket = () => {
-    handleAction('Ajout à la file', () => apiService.enqueueTicket());
-  };
-
-  const handleDequeueTicket = () => {
-    handleAction('Retrait de la file', () => apiService.dequeueTicket());
-  };
-
-  const handlePeekQueue = async () => {
-    try {
-      setActionLoading('Consultation du prochain');
-      const ticket = await apiService.peekQueue();
-      
-      if (ticket) {
-        showMessage(`Prochain ticket: #${ticket.ticketNumber} (${ticket.status})`, 'info');
-        console.log('Peek result:', ticket);
-      } else {
-        showMessage('Aucun ticket en file d\'attente', 'info');
-      }
-      
-      onRefresh();
-    } catch (error) {
-      showMessage('Erreur: Consultation du prochain', 'error');
-      console.error('Peek error:', error);
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   const isLoading = (action: string) => actionLoading === action;
 
   return (
-    <div className="card-base p-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6">Panneau de contrôle</h2>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary-100 rounded-lg">
+            <Users className="w-5 h-5 text-primary-600" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-secondary-900">Panneau de Contrôle</h2>
+            <p className="text-xs text-secondary-500">Gestion des tickets</p>
+          </div>
+        </div>
 
-      {/* Actions principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {/* Bouton Créer un Ticket */}
         <button
           onClick={handleCreateTicket}
           disabled={isLoading('Création de ticket') || loading}
-          className="btn-primary"
+          className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
         >
-          {isLoading('Création de ticket') ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
-          Créer un ticket
-        </button>
-        
-        <button
-          onClick={handleEnqueueTicket}
-          disabled={isLoading('Ajout à la file') || loading}
-          className="btn-success"
-        >
-          {isLoading('Ajout à la file') ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
-          Ajouter à la file
+          {isLoading('Création de ticket') ? (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
+          {isLoading('Création de ticket') ? 'Création...' : 'Créer un Ticket'}
         </button>
       </div>
 
-      {/* Actions de la file */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium text-gray-700">Actions de la file d'attente</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <button
-            onClick={handleEnqueueTicket}
-            disabled={isLoading('Ajout à la file') || loading}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-          >
-            <ArrowRight size={16} />
-            {isLoading('Ajout à la file') ? 'Ajout...' : 'Enqueue'}
-          </button>
-
-          <button
-            onClick={handleDequeueTicket}
-            disabled={isLoading('Retrait de la file') || loading}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-          >
-            <ArrowLeft size={16} />
-            {isLoading('Retrait de la file') ? 'Retrait...' : 'Dequeue'}
-          </button>
-
-          <button
-            onClick={handlePeekQueue}
-            disabled={isLoading('Consultation du prochain') || loading}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-          >
-            <Eye size={16} />
-            {isLoading('Consultation du prochain') ? 'Consultation...' : 'Peek'}
-          </button>
-        </div>
-      </div>
-
-      {/* Messages */}
+      {/* Messages avec design professionnel */}
       {message && (
-        <div className={`mt-4 p-3 rounded-md animate-fade-in ${
-          message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-300' :
-          message.type === 'error' ? 'bg-red-100 text-red-700 border border-red-300' :
-          'bg-blue-100 text-blue-700 border border-blue-300'
-        }`}>
-          {message.text}
+        <div 
+          className={`p-3 rounded-lg border animate-slide-down ${
+            message.type === 'success' 
+              ? 'bg-success-50 text-success-800 border-success-200' 
+              : message.type === 'error' 
+              ? 'bg-danger-50 text-danger-800 border-danger-200' 
+              : 'bg-primary-50 text-primary-800 border-primary-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${
+              message.type === 'success' ? 'bg-success-500' :
+              message.type === 'error' ? 'bg-danger-500' : 'bg-primary-500'
+            }`}></div>
+            <span className="text-sm font-medium">{message.text}</span>
+          </div>
         </div>
       )}
     </div>
