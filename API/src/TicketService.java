@@ -62,35 +62,31 @@ public class TicketService {
     }
 
     /**
-     * Appelle un ticket (change son statut de WAITING à CALLED)
-     * @param ticketNumber Le numéro du ticket à appeler
-     * @return true si le ticket a été appelé avec succès, false sinon
+     * Appelle le prochain ticket en attente (FIFO - First In, First Out)
+     * @return Le ticket appelé ou null si aucun ticket en attente
      */
-    public boolean callTicket(int ticketNumber) {
-        Ticket ticket = findTicketInQueue(ticketNumber);
-        if (ticket != null) {
+    public Ticket callTicket() {
+        if (!waitingQueue.isEmpty()) {
+            Ticket ticket = waitingQueue.dequeue();
             ticket.setStatus(Ticket.TicketStatus.CALLED);
-            waitingQueue.remove(ticket);
             calledTickets.add(ticket);
-            return true;
+            return ticket;
         }
-        return false;
+        return null;
     }
 
     /**
-     * Sert un ticket (change son statut de CALLED à SERVED)
-     * @param ticketNumber Le numéro du ticket à servir
-     * @return true si le ticket a été servi avec succès, false sinon
+     * Sert le premier ticket appelé (FIFO - First In, First Out)
+     * @return Le ticket servi ou null si aucun ticket appelé
      */
-    public boolean serveTicket(int ticketNumber) {
-        Ticket ticket = findTicket(calledTickets, ticketNumber);
-        if (ticket != null) {
+    public Ticket serveTicket() {
+        if (!calledTickets.isEmpty()) {
+            Ticket ticket = calledTickets.remove(0); // Premier ticket appelé
             ticket.setStatus(Ticket.TicketStatus.SERVED);
-            calledTickets.remove(ticket);
             servedTickets.add(ticket);
-            return true;
+            return ticket;
         }
-        return false;
+        return null;
     }
 
     // ===== OPERATIONS SUR LA FILE =====
@@ -135,32 +131,5 @@ public class TicketService {
      */
     public int size() {
         return waitingQueue.size();
-    }
-
-    // ===== METHODES UTILITAIRES =====
-    
-    /**
-     * Recherche un ticket dans une liste donnée
-     * @param list La liste dans laquelle rechercher
-     * @param ticketNumber Le numéro du ticket à rechercher
-     * @return Le ticket trouvé ou null
-     */
-    private Ticket findTicket(List<Ticket> list, int ticketNumber) {
-        return list.stream()
-            .filter(t -> t.getTicketNumber() == ticketNumber)
-            .findFirst()
-            .orElse(null);
-    }
-
-    /**
-     * Recherche un ticket dans la file d'attente
-     * @param ticketNumber Le numéro du ticket à rechercher
-     * @return Le ticket trouvé ou null
-     */
-    private Ticket findTicketInQueue(int ticketNumber) {
-        return waitingQueue.getAll().stream()
-            .filter(t -> t.getTicketNumber() == ticketNumber)
-            .findFirst()
-            .orElse(null);
     }
 }
