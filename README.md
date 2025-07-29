@@ -19,8 +19,8 @@ Ce projet est un **système complet de gestion de tickets** comprenant une API R
 
 **Backend (API Java) :**
 - 🆕 **Création de tickets** avec numérotation automatique
-- 📞 **Appel de tickets** (transition WAITING → CALLED)
-- ✅ **Service de tickets** (transition CALLED → SERVED)
+- 📞 **Appel automatique FIFO** (premier en attente → appelé - transition WAITING → CALLED)
+- ✅ **Service automatique FIFO** (premier appelé → servi - transition CALLED → SERVED)
 - 📊 **Consultation des tickets** par statut
 - 🔄 **File d'attente FIFO** (First In, First Out)
 - 📖 **Documentation Swagger** interactive
@@ -50,9 +50,6 @@ Ce projet est un **système complet de gestion de tickets** comprenant une API R
 - **🌐 HttpServer** - Serveur HTTP intégré
 - **🐳 Docker** - Conteneurisation
 - **📖 OpenAPI/Swagger** - Documentation API
-- **☁️ DigitalOcean** - Serveur cloud Ubuntu
-- **🔀 Traefik** - Load balancer et reverse proxy
-- **🌍 Name.com** - Gestion de domaine
 
 ### Frontend
 - **⚛️ React 18** - Framework UI moderne
@@ -60,12 +57,13 @@ Ce projet est un **système complet de gestion de tickets** comprenant une API R
 - **⚡ Vite** - Build tool rapide
 - **🎨 Tailwind CSS** - Framework CSS
 - **🔗 Axios** - Client HTTP
-- **☁️ DigitalOcean** - Serveur cloud Ubuntu
-- **🔀 Traefik** - Load balancer et reverse proxy
 
 ### DevOps
 - **⚙️ GitHub Actions** - CI/CD
 - **🐳 Docker Compose** - Orchestration des services
+- **☁️ DigitalOcean** - Serveur cloud Ubuntu
+- **🔀 Traefik** - Load balancer et reverse proxy
+- **🌍 Name.com** - Gestion de domaine
 
 ## 🚀 Démarrage rapide
 
@@ -234,7 +232,6 @@ Le frontend **détecte automatiquement** l'environnement et configure l'API appr
 
 - **🏠 Développement local** : `http://localhost:8008` (si disponible)
 - **🌐 Production** : `https://java-api.rasendra.app/`
-- **🔄 Fallback intelligent** : Bascule vers production si API locale indisponible
 
 ### 🚀 Lancement du frontend
 
@@ -273,8 +270,6 @@ VITE_API_URL=https://java-api.rasendra.app/
 - **🎯 Actions interactives** : Créer, appeler, servir des tickets
 - **📈 Statistiques en temps réel** de la file d'attente
 - **🔄 Auto-refresh configurable** avec indicateur visuel
-- **🌐 Indicateur d'environnement** (Local/Production)
-- **📱 Design responsive** adapté mobile et desktop
 - **🎨 Interface moderne** avec codes couleur :
   - 🟡 **Jaune** : Tickets en attente (WAITING)
   - 🔵 **Bleu** : Tickets appelés (CALLED)  
@@ -316,8 +311,8 @@ frontend/src/
 **Utilisation :**
 2. **Créer un ticket** : Cliquer sur "Nouveau Ticket"
 3. **Voir la file d'attente** : Les tickets s'affichent automatiquement
-4. **Appeler un ticket** : Cliquer sur "Appeler" sur un ticket
-5. **Servir un ticket** : Cliquer sur "Servir" sur un ticket appelé
+4. **Appeler le prochain ticket** : Cliquer sur "Appeler" dans l'en-tête de la file d'attente
+5. **Servir le prochain ticket** : Cliquer sur "Servir" dans l'en-tête des tickets appelés
 
 ### 📡 Via l'API (Backend)
 
@@ -337,11 +332,9 @@ curl -X POST http://localhost:8008/api/tickets
 }
 ```
 
-#### Appeler un ticket
+#### Appeler le prochain ticket (FIFO)
 ```bash
-curl -X POST http://localhost:8008/api/tickets/call \
-  -H "Content-Type: text/plain" \
-  -d "1"
+curl -X POST http://localhost:8008/api/tickets/call
 ```
 
 #### Voir les tickets en attente
@@ -427,8 +420,8 @@ npm run lint
 | `GET` | `/health` | Health check de l'API |
 | `POST` | `/api/tickets` | Créer un nouveau ticket |
 | `GET` | `/api/tickets` | Lister les tickets en attente |
-| `POST` | `/api/tickets/call` | Appeler un ticket |
-| `POST` | `/api/tickets/serve` | Servir un ticket |
+| `POST` | `/api/tickets/call` | Appeler le prochain ticket FIFO |
+| `POST` | `/api/tickets/serve` | Servir le prochain ticket FIFO |
 | `GET` | `/api/tickets/called` | Lister les tickets appelés |
 | `GET` | `/api/tickets/served` | Lister les tickets servis |
 

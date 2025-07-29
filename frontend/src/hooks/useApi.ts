@@ -96,29 +96,29 @@ export function useTicketActions() {
     }
   }, []);
 
-  const callTicket = useCallback(async (ticketNumber: number): Promise<boolean> => {
+  const callTicket = useCallback(async (): Promise<Ticket | null> => {
     try {
       setLoading(true);
       setError(null);
-      await apiService.callTicket(ticketNumber);
-      return true;
+      const ticket = await apiService.callTicket();
+      return ticket;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de l\'appel du ticket');
-      return false;
+      return null;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const serveTicket = useCallback(async (ticketNumber: number): Promise<boolean> => {
+  const serveTicket = useCallback(async (): Promise<Ticket | null> => {
     try {
       setLoading(true);
       setError(null);
-      await apiService.serveTicket(ticketNumber);
-      return true;
+      const ticket = await apiService.serveTicket();
+      return ticket;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du service du ticket');
-      return false;
+      return null;
     } finally {
       setLoading(false);
     }

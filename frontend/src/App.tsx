@@ -43,16 +43,16 @@ function App() {
   useAutoRefresh(refreshFunctions, 10000);
 
   // Gestion des actions sur les tickets
-  const handleCallTicket = async (ticketNumber: number) => {
-    const success = await callTicket(ticketNumber);
-    if (success) {
+  const handleCallTicket = async () => {
+    const ticket = await callTicket();
+    if (ticket) {
       refreshAll();
     }
   };
 
-  const handleServeTicket = async (ticketNumber: number) => {
-    const success = await serveTicket(ticketNumber);
-    if (success) {
+  const handleServeTicket = async () => {
+    const ticket = await serveTicket();
+    if (ticket) {
       refreshAll();
     }
   };
@@ -216,7 +216,16 @@ function App() {
                     </p>
                   </div>
                 </div>
-                <div className="w-3 h-3 bg-warning-400 rounded-full animate-pulse-soft"></div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleCallTicket()}
+                    disabled={actionLoading || !waitingTickets.data?.length}
+                    className="px-3 py-1 bg-warning-600 hover:bg-warning-700 disabled:bg-warning-400 text-white text-xs font-medium rounded-lg transition-colors"
+                  >
+                    Appeler
+                  </button>
+                  <div className="w-3 h-3 bg-warning-400 rounded-full animate-pulse-soft"></div>
+                </div>
               </div>
 
               <div className="max-h-96 overflow-y-auto space-y-2">
@@ -239,13 +248,6 @@ function App() {
                             </p>
                           </div>
                         </div>
-                        <button
-                          onClick={() => handleCallTicket(getTicketProperty(ticket, 'ticketNumber', 0))}
-                          disabled={actionLoading || !getTicketProperty(ticket, 'ticketNumber')}
-                          className="px-3 py-1 bg-warning-600 hover:bg-warning-700 disabled:bg-warning-400 text-white text-xs font-medium rounded-lg transition-colors"
-                        >
-                          Appeler
-                        </button>
                       </div>
                     </div>
                   ))
@@ -274,7 +276,16 @@ function App() {
                     </p>
                   </div>
                 </div>
-                <div className="w-3 h-3 bg-primary-400 rounded-full animate-pulse-soft"></div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleServeTicket()}
+                    disabled={actionLoading || !calledTickets.data?.length}
+                    className="px-3 py-1 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white text-xs font-medium rounded-lg transition-colors"
+                  >
+                    Servir
+                  </button>
+                  <div className="w-3 h-3 bg-primary-400 rounded-full animate-pulse-soft"></div>
+                </div>
               </div>
 
               <div className="max-h-96 overflow-y-auto space-y-2">
@@ -297,13 +308,6 @@ function App() {
                             </p>
                           </div>
                         </div>
-                        <button
-                          onClick={() => handleServeTicket(getTicketProperty(ticket, 'ticketNumber', 0))}
-                          disabled={actionLoading || !getTicketProperty(ticket, 'ticketNumber')}
-                          className="px-3 py-1 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white text-xs font-medium rounded-lg transition-colors"
-                        >
-                          Servir
-                        </button>
                       </div>
                     </div>
                   ))

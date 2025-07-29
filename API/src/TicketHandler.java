@@ -37,17 +37,13 @@ public class TicketHandler {
         }
 
         try {
-            String body = new String(exchange.getRequestBody().readAllBytes());
-            int ticketNumber = Integer.parseInt(body.trim());
-            boolean called = ticketService.callTicket(ticketNumber);
+            Ticket calledTicket = ticketService.callTicket();
 
-            if (called) {
-                HttpUtils.sendResponse(exchange, 200, "Ticket appelé", "text/plain; charset=UTF-8");
+            if (calledTicket != null) {
+                HttpUtils.sendJsonResponse(exchange, 200, calledTicket.toJson());
             } else {
-                HttpUtils.sendResponse(exchange, 404, "Ticket non trouvé ou déjà appelé", "text/plain; charset=UTF-8");
+                HttpUtils.sendResponse(exchange, 404, "Aucun ticket en attente", "text/plain; charset=UTF-8");
             }
-        } catch (NumberFormatException e) {
-            HttpUtils.sendErrorResponse(exchange, 400, "Numéro de ticket invalide");
         } catch (Exception e) {
             HttpUtils.sendErrorResponse(exchange, 500, "Erreur interne: " + e.getMessage());
         }
@@ -62,17 +58,13 @@ public class TicketHandler {
         }
 
         try {
-            String body = new String(exchange.getRequestBody().readAllBytes());
-            int ticketNumber = Integer.parseInt(body.trim());
-            boolean served = ticketService.serveTicket(ticketNumber);
+            Ticket servedTicket = ticketService.serveTicket();
 
-            if (served) {
-                HttpUtils.sendResponse(exchange, 200, "Ticket servi", "text/plain; charset=UTF-8");
+            if (servedTicket != null) {
+                HttpUtils.sendJsonResponse(exchange, 200, servedTicket.toJson());
             } else {
-                HttpUtils.sendResponse(exchange, 404, "Ticket non trouvé ou non appelé", "text/plain; charset=UTF-8");
+                HttpUtils.sendResponse(exchange, 404, "Aucun ticket appelé", "text/plain; charset=UTF-8");
             }
-        } catch (NumberFormatException e) {
-            HttpUtils.sendErrorResponse(exchange, 400, "Numéro de ticket invalide");
         } catch (Exception e) {
             HttpUtils.sendErrorResponse(exchange, 500, "Erreur interne: " + e.getMessage());
         }
