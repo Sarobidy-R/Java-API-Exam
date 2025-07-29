@@ -1,13 +1,22 @@
 openapi: 3.0.3
 info:
-  title: 🎫 API de Gestion de Tickets
+  title: 🎫 API de Gestion de Tickets FIFO
   description: |
     
-    Cette API REST permet de gérer un système de tickets avec file d'attente. 
-    Elle offre une gestion complète du cycle de vie des tickets 
-  
+    Cette API REST permet de gérer un système de tickets avec **file d'attente FIFO** (First In, First Out). 
+    Elle offre une gestion complète du cycle de vie des tickets avec un traitement automatique dans l'ordre d'arrivée.
     
-  version: 1.0.0
+    **🔄 Principe FIFO :**
+    - **Appel automatique** : Le premier ticket créé est le premier appelé
+    - **Service automatique** : Le premier ticket appelé est le premier servi
+    - **Équité garantie** : Traitement dans l'ordre chronologique strict
+    
+    **📋 Workflow :**
+    1. **Création** → Ticket ajouté à la file d'attente (WAITING)
+    2. **Appel FIFO** → Premier ticket en attente devient CALLED
+    3. **Service FIFO** → Premier ticket appelé devient SERVED
+    
+  version: 1.1.0
   contact:
     name: API Support
     email: rasendraminosarobidy@gmail.com
@@ -24,9 +33,9 @@ tags:
   - name: 🏠 Général
     description: Endpoints généraux et utilitaires
   - name: 🎫 Tickets
-    description: Gestion des tickets et de leur cycle de vie
+    description: Gestion automatique des tickets avec système FIFO (First In, First Out)
   - name: 📋 File d'attente
-    description: Opérations sur la file d'attente (FIFO)
+    description: Opérations sur la file d'attente FIFO - traitement automatique dans l'ordre d'arrivée
 paths:
   /:
     get:
@@ -195,51 +204,42 @@ paths:
     post:
       tags:
         - 🎫 Tickets
-      summary: 📞 Appeler un ticket
+      summary: 📞 Appeler le prochain ticket (FIFO)
       description: |
-        Fait passer un ticket du statut **WAITING** au statut **CALLED**.
+        Appelle automatiquement le **premier ticket en attente** (FIFO - First In, First Out).
+        Fait passer le ticket du statut **WAITING** au statut **CALLED**.
         
-        **Processus :**
-        1. Recherche du ticket par numéro dans la file d'attente
+        **Processus FIFO :**
+        1. Récupération automatique du premier ticket dans la file d'attente
         2. Changement du statut vers CALLED
         3. Déplacement vers la liste des tickets appelés
         4. Enregistrement de la date d'appel
         
-        **Prérequis :** Le ticket doit avoir le statut WAITING.
+        **Aucun paramètre requis** - Le système choisit automatiquement le prochain ticket.
       operationId: callTicket
-      requestBody:
-        required: true
-        description: Numéro du ticket à appeler
-        content:
-          text/plain:
-            schema:
-              type: integer
-              minimum: 1
-              example: 1
-            examples:
-              ticket_1:
-                value: 1
-                summary: Appeler le ticket numéro 1
-              ticket_5:
-                value: 5
-                summary: Appeler le ticket numéro 5
       responses:
         '200':
           description: ✅ Ticket appelé avec succès
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: "Ticket appelé"
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/Ticket'
+              examples:
+                called_ticket:
+                  value:
+                    ticketNumber: 1
+                    status: "CALLED"
+                    creationDate: "2024-01-15T10:30:00Z"
+                    calledDate: "2024-01-15T10:35:00Z"
+                    servedDate: null
+                  summary: Ticket appelé avec succès
         '404':
-          description: ❌ Ticket non trouvé ou déjà appelé
+          description: ❌ Aucun ticket en attente
           content:
             text/plain:
               schema:
                 type: string
-                example: "Ticket non trouvé ou déjà appelé"
+                example: "Aucun ticket en attente"
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -247,51 +247,42 @@ paths:
     post:
       tags:
         - 🎫 Tickets
-      summary: ✅ Servir un ticket
+      summary: ✅ Servir le prochain ticket appelé (FIFO)
       description: |
-        Fait passer un ticket du statut **CALLED** au statut **SERVED**.
+        Sert automatiquement le **premier ticket appelé** (FIFO - First In, First Out).
+        Fait passer le ticket du statut **CALLED** au statut **SERVED**.
         
-        **Processus :**
-        1. Recherche du ticket par numéro dans la liste des tickets appelés
+        **Processus FIFO :**
+        1. Récupération automatique du premier ticket dans la liste des appelés
         2. Changement du statut vers SERVED
         3. Déplacement vers la liste des tickets servis
         4. Enregistrement de la date de service
         
-        **Prérequis :** Le ticket doit avoir le statut CALLED.
+        **Aucun paramètre requis** - Le système choisit automatiquement le prochain ticket appelé.
       operationId: serveTicket
-      requestBody:
-        required: true
-        description: Numéro du ticket à servir
-        content:
-          text/plain:
-            schema:
-              type: integer
-              minimum: 1
-              example: 1
-            examples:
-              ticket_1:
-                value: 1
-                summary: Servir le ticket numéro 1
-              ticket_3:
-                value: 3
-                summary: Servir le ticket numéro 3
       responses:
         '200':
           description: ✅ Ticket servi avec succès
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: "Ticket servi"
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: '#/components/schemas/Ticket'
+              examples:
+                served_ticket:
+                  value:
+                    ticketNumber: 1
+                    status: "SERVED"
+                    creationDate: "2024-01-15T10:30:00Z"
+                    calledDate: "2024-01-15T10:35:00Z"
+                    servedDate: "2024-01-15T10:40:00Z"
+                  summary: Ticket servi avec succès
         '404':
-          description: ❌ Ticket non trouvé ou non appelé
+          description: ❌ Aucun ticket appelé
           content:
             text/plain:
               schema:
                 type: string
-                example: "Ticket non trouvé ou non appelé"
+                example: "Aucun ticket appelé"
         '500':
           $ref: '#/components/responses/InternalServerError'
   /api/tickets/called:
