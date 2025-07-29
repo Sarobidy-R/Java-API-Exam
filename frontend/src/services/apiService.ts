@@ -89,25 +89,13 @@ class ApiService {
     return response.data;
   }
 
-  async callTicket(ticketNumber: number): Promise<string> {
-    const response: AxiosResponse<string> = await this.api.post(
-      '/api/tickets/call',
-      ticketNumber.toString(),
-      {
-        headers: { 'Content-Type': 'text/plain' }
-      }
-    );
+  async callTicket(): Promise<Ticket> {
+    const response: AxiosResponse<Ticket> = await this.api.post('/api/tickets/call');
     return response.data;
   }
 
-  async serveTicket(ticketNumber: number): Promise<string> {
-    const response: AxiosResponse<string> = await this.api.post(
-      '/api/tickets/serve',
-      ticketNumber.toString(),
-      {
-        headers: { 'Content-Type': 'text/plain' }
-      }
-    );
+  async serveTicket(): Promise<Ticket> {
+    const response: AxiosResponse<Ticket> = await this.api.post('/api/tickets/serve');
     return response.data;
   }
 
