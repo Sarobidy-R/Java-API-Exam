@@ -59,10 +59,10 @@ function App() {
 
   // Fonction pour formater les dates avec date ET heure
   const formatDate = (dateString: string | undefined | null) => {
-    if (!dateString) return new Date().toLocaleString('fr-FR');
+    if (!dateString) return 'Date non disponible';
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return new Date().toLocaleString('fr-FR');
+      if (isNaN(date.getTime())) return 'Date invalide';
       // Formatage complet avec date et heure
       return date.toLocaleString('fr-FR', {
         day: '2-digit',
@@ -73,7 +73,7 @@ function App() {
         second: '2-digit'
       });
     } catch {
-      return new Date().toLocaleString('fr-FR');
+      return 'Erreur de date';
     }
   };
 
@@ -240,11 +240,7 @@ function App() {
                           <div>
                             <p className="font-medium text-warning-800">Ticket #{getTicketProperty(ticket, 'ticketNumber', '?')}</p>
                             <p className="text-xs text-warning-600">
-                              {formatDate(
-                                getTicketProperty(ticket, 'createdAt') ||
-                                getTicketProperty(ticket, 'timestamp') ||
-                                getTicketProperty(ticket, 'created')
-                              )}
+                              {formatDate(getTicketProperty(ticket, 'creationDate'))}
                             </p>
                           </div>
                         </div>
@@ -300,11 +296,7 @@ function App() {
                           <div>
                             <p className="font-medium text-primary-800">Ticket #{getTicketProperty(ticket, 'ticketNumber', '?')}</p>
                             <p className="text-xs text-primary-600">
-                              {formatDate(
-                                getTicketProperty(ticket, 'calledAt') ||
-                                getTicketProperty(ticket, 'createdAt') ||
-                                getTicketProperty(ticket, 'timestamp')
-                              )}
+                              {formatDate(getTicketProperty(ticket, 'calledDate'))}
                             </p>
                           </div>
                         </div>
@@ -351,12 +343,7 @@ function App() {
                           <div>
                             <p className="font-medium text-success-800">Ticket #{getTicketProperty(ticket, 'ticketNumber', '?')}</p>
                             <p className="text-xs text-success-600">
-                              {formatDate(
-                                getTicketProperty(ticket, 'servedAt') ||
-                                getTicketProperty(ticket, 'calledAt') ||
-                                getTicketProperty(ticket, 'createdAt') ||
-                                getTicketProperty(ticket, 'timestamp')
-                              )}
+                              {formatDate(getTicketProperty(ticket, 'servedDate'))}
                             </p>
                           </div>
                         </div>
