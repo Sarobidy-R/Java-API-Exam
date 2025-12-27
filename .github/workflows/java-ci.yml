@@ -124,7 +124,6 @@ jobs:
       - name: Setup SSH and deploy
         run: |
           # Setup SSH
-          ping ${{ secrets.IP_SERVER }} -c 4
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
