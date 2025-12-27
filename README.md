@@ -523,4 +523,4 @@ Ce projet est sous licence MIT.
 
 ---
 
-🎯 **Projet full-stack moderne : Backend Java + Frontend React déployé sur DigitalOcean avec Traefik**
+🎯 **Projet full-stack moderne : Backend Java + Frontend React déployé sur DigitalOcean avec Traefik** 
